@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  prisma:
+    image: node:20
+    command: npx prisma studio --port ${PRISMA_STUDIO_PORT}
+    ports:
+      - "${PRISMA_STUDIO_PORT}:${PRISMA_STUDIO_PORT}"
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+    volumes:
+      - ./:/app
+    working_dir: /app
+
+  db:
+    container_name: "${DB_CONTAINER_NAME}"
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - "${DB_PORT}:5432"
+    expose:
+      - "${DB_PORT}"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
