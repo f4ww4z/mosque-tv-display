@@ -1,42 +1,19 @@
 "use client"
 
-import fetchJson from "lib/fetchJson"
 import { hijriMonthToLatin } from "lib/string"
 import moment from "moment"
-import { useEffect, useState } from "react"
 import { PrayerTime } from "types/prayer"
 
-const DateAndHijri = () => {
-  const [pt, setPrayerTimes] = useState<PrayerTime>()
-
-  const fetchPrayerTimes = async () => {
-    const formdata = new FormData()
-    formdata.append("datestart", new Date().toISOString())
-    formdata.append("dateend", new Date().toISOString())
-
-    try {
-      const data = await fetchJson<PrayerTime>(`/api/prayer`)
-
-      setPrayerTimes(data)
-
-      console.log(data)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    fetchPrayerTimes()
-  }, [])
-
+const DateAndHijri = ({ pt }: { pt: PrayerTime }) => {
   if (!pt) {
     return <p>Loading...</p>
   }
 
   return (
-    <div className="flex flex-col ml-4 text-3xl text-amber-100 drop-shadow-2xl">
-      <p className="font-bold">{moment().format("dddd, DD MMMM YYYY")}</p>
-      <p className="font-bold">
+    <div className="flex gap-6 text-5xl font-bold text-amber-100 drop-shadow-2xl font-sans uppercase">
+      <p>{moment().format("dddd, DD MMMM YYYY")}</p>
+      <p>/</p>
+      <p className="text-amber-300">
         {Number(pt.hijri.substring(8, 10))}
         &nbsp;
         {hijriMonthToLatin(pt.hijri.substring(5, 7))}
