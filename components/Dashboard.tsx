@@ -53,7 +53,7 @@ const Dashboard = () => {
         </Link>
       </div>
 
-      <div className="flex items-center justify-center w-full flex-nowrap">
+      <div className="flex items-start justify-center w-full flex-nowrap">
         <Timetable
           prayerTime={pt}
           ptLabelsToShow={ptLabels}
