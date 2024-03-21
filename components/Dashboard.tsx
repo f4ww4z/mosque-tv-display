@@ -44,18 +44,18 @@ const Dashboard = () => {
         backgroundSize: "cover",
       }}
     >
-      <div className="flex items-center justify-between w-full gap-8 px-16 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80">
+      <div className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80">
         <Clock />
         <DateAndHijri pt={pt} />
       </div>
 
-      <div className="flex justify-center w-full gap-1 flex-nowrap">
+      <div className="flex justify-center w-full flex-nowrap">
         <Timetable
           prayerTime={pt}
           ptLabelsToShow={ptLabels}
         />
         <video
-          className="w-[156vh] h-max"
+          className="w-[156vh] h-auto"
           width="1920"
           height="1080"
           autoPlay
