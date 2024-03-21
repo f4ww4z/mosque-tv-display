@@ -58,7 +58,7 @@ const Dashboard = () => {
           prayerTime={pt}
           ptLabelsToShow={ptLabels}
         />
-        <div className="w-[156vh] h-screen">
+        <div className="w-[148vh] h-screen">
           <ImageCarousel />
         </div>
       </div>
