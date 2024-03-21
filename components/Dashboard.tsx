@@ -6,6 +6,8 @@ import { PrayerTime } from "types/prayer"
 import Clock from "./Clock"
 import DateAndHijri from "./DateAndHijri"
 import Timetable from "./Timetable"
+import Link from "next/link"
+import ImageCarousel from "./ImageCarousel"
 
 const ptLabels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
@@ -46,29 +48,19 @@ const Dashboard = () => {
     >
       <div className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80">
         <Clock />
-        <DateAndHijri pt={pt} />
+        <Link href="/login">
+          <DateAndHijri pt={pt} />
+        </Link>
       </div>
 
-      <div className="flex justify-center w-full flex-nowrap">
+      <div className="flex items-center justify-center w-full flex-nowrap">
         <Timetable
           prayerTime={pt}
           ptLabelsToShow={ptLabels}
         />
-        <video
-          className="w-[156vh] h-auto"
-          width="1920"
-          height="1080"
-          autoPlay
-          loop
-          controls
-          muted
-        >
-          <source
-            src="/api/video"
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
+        <div className="w-[156vh] h-screen">
+          <ImageCarousel />
+        </div>
       </div>
     </div>
   )
