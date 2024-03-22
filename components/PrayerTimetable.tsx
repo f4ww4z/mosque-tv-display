@@ -21,7 +21,7 @@ interface TimetableProps {
   ptLabelsToShow?: string[]
 }
 
-const Timetable = ({ prayerTime, ptLabelsToShow }: TimetableProps) => {
+const PrayerTimetable = ({ prayerTime, ptLabelsToShow }: TimetableProps) => {
   if (!prayerTime) {
     return <p>Loading...</p>
   }
@@ -39,4 +39,4 @@ const Timetable = ({ prayerTime, ptLabelsToShow }: TimetableProps) => {
   )
 }
 
-export default Timetable
+export default PrayerTimetable

@@ -1,24 +1,23 @@
 "use client"
 
 import fetchJson from "lib/fetchJson"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { PrayerTime } from "types/prayer"
 import Clock from "./Clock"
 import DateAndHijri from "./DateAndHijri"
-import Timetable from "./Timetable"
-import Link from "next/link"
 import ImageCarousel from "./ImageCarousel"
+import PrayerTimetable from "./PrayerTimetable"
+import DoNotDisturbScreen from "./DoNotDisturbScreen"
 
 const ptLabels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
 const Dashboard = () => {
   const [pt, setPrayerTimes] = useState<PrayerTime>()
 
-  const fetchData = async () => {
-    const formdata = new FormData()
-    formdata.append("datestart", new Date().toISOString())
-    formdata.append("dateend", new Date().toISOString())
+  const [doNotDisturb, setDoNotDisturb] = useState<boolean>(false)
 
+  const fetchData = async () => {
     try {
       const data = await fetchJson<PrayerTime>(`/api/prayer`)
 
@@ -32,11 +31,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchData()
-  }, [])
 
-  if (!pt) {
-    return <p>Loading...</p>
-  }
+    const interval = setInterval(() => {
+      fetchData()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div
@@ -46,7 +46,13 @@ const Dashboard = () => {
         backgroundSize: "cover",
       }}
     >
-      <div className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80">
+      {doNotDisturb && (
+        <DoNotDisturbScreen onClick={() => setDoNotDisturb(!doNotDisturb)} />
+      )}
+      <div
+        onClick={() => setDoNotDisturb(!doNotDisturb)}
+        className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80"
+      >
         <Clock />
         <Link href="/login">
           <DateAndHijri pt={pt} />
@@ -54,7 +60,7 @@ const Dashboard = () => {
       </div>
 
       <div className="flex items-start justify-center w-full flex-nowrap">
-        <Timetable
+        <PrayerTimetable
           prayerTime={pt}
           ptLabelsToShow={ptLabels}
         />
