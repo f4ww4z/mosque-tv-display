@@ -7,9 +7,11 @@ export async function GET(req: NextRequest) {
   return handleRequest(
     req,
     async () => {
+      const today = new Date()
+
       const data = new FormData()
-      data.append("datestart", moment().format("YYYY-MM-DD"))
-      data.append("dateend", moment().format("YYYY-MM-DD"))
+      data.append("datestart", moment(today).format("YYYY-MM-DD"))
+      data.append("dateend", moment(today).format("YYYY-MM-DD"))
 
       const res = await fetch(process.env.NEXT_PUBLIC_JAKIM_PRAYER_TIMES_URL, {
         method: "POST",

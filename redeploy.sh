@@ -7,6 +7,7 @@ fi
 source ~/.nvm/nvm.sh
 
 rm -r node_modules
+rm -r .next
 npm i
 npm run build
 systemctl restart mosque
