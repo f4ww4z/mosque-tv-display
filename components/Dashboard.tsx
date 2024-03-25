@@ -19,7 +19,10 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const data = await fetchJson<PrayerTime>(`/api/prayer`)
+      const data = await fetchJson<PrayerTime>(`/api/prayer`, {
+        method: "POST",
+        body: JSON.stringify({ date: new Date() }),
+      })
 
       setPrayerTimes(data)
 

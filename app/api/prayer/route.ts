@@ -3,15 +3,15 @@ import moment from "moment"
 import { NextRequest, NextResponse } from "next/server"
 import { PrayerTimesResponse } from "types/prayer"
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   return handleRequest(
     req,
     async () => {
-      const today = new Date()
+      const { date } = await req.json()
 
       const data = new FormData()
-      data.append("datestart", moment(today).format("YYYY-MM-DD"))
-      data.append("dateend", moment(today).format("YYYY-MM-DD"))
+      data.append("datestart", moment(date).format("YYYY-MM-DD"))
+      data.append("dateend", moment(date).format("YYYY-MM-DD"))
 
       const res = await fetch(process.env.NEXT_PUBLIC_JAKIM_PRAYER_TIMES_URL, {
         method: "POST",
