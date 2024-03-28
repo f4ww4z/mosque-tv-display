@@ -6,16 +6,26 @@ import { useEffect, useState } from "react"
 import { PrayerTime } from "types/prayer"
 import Clock from "./Clock"
 import DateAndHijri from "./DateAndHijri"
+import DoNotDisturbScreen from "./DoNotDisturbScreen"
 import ImageCarousel from "./ImageCarousel"
 import PrayerTimetable from "./PrayerTimetable"
-import DoNotDisturbScreen from "./DoNotDisturbScreen"
 
 const ptLabels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
 const Dashboard = () => {
   const [pt, setPrayerTimes] = useState<PrayerTime>()
-
+  const [settings, setSettings] = useState<Setting[]>([])
   const [doNotDisturb, setDoNotDisturb] = useState<boolean>(false)
+
+  const fetchSettings = async () => {
+    try {
+      const data = await fetchJson<Setting[]>("/api/settings")
+
+      setSettings(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -34,6 +44,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchData()
+    fetchSettings()
 
     const interval = setInterval(() => {
       fetchData()

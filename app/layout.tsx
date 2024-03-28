@@ -1,14 +1,12 @@
+"use client"
+
 import { Inter } from "next/font/google"
 
 import "react-multi-carousel/lib/styles.css"
 import "./globals.css"
+import { SessionProvider } from "next-auth/react"
 
 const inter = Inter({ subsets: ["latin"] })
-
-export const metadata = {
-  title: "Mosque TV Display",
-  description: "A TV display for mosques",
-}
 
 export default function RootLayout({
   children,
@@ -20,7 +18,9 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={inter.className}>{children}</body>
+      <SessionProvider>
+        <body className={inter.className}>{children}</body>
+      </SessionProvider>
     </html>
   )
 }
