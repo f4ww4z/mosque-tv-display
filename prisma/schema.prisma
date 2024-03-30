@@ -38,7 +38,9 @@ model Settings {
 model CarouselItem {
   id        String   @id @default(cuid())
   title     String?
-  fileUrl   String
+  filename  String
+  order     Int
+  hidden    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

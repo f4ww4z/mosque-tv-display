@@ -6,9 +6,12 @@ import { useEffect, useState } from "react"
 import { PrayerTime } from "types/prayer"
 import Clock from "./Clock"
 import DateAndHijri from "./DateAndHijri"
+import DisplayCarousel from "./DisplayCarousel"
 import DoNotDisturbScreen from "./DoNotDisturbScreen"
-import ImageCarousel from "./ImageCarousel"
 import PrayerTimetable from "./PrayerTimetable"
+import { CarouselItem } from "types/carousel"
+import { toast } from "react-toastify"
+import { FaMosque } from "react-icons/fa"
 
 const ptLabels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
@@ -16,6 +19,30 @@ const Dashboard = () => {
   const [pt, setPrayerTimes] = useState<PrayerTime>()
   const [settings, setSettings] = useState<Setting[]>([])
   const [doNotDisturb, setDoNotDisturb] = useState<boolean>(false)
+  const [items, setItems] = useState<CarouselItem[]>([])
+  const [carouselLoading, setCarouselLoading] = useState<boolean>(false)
+
+  const fetchCarouselData = async () => {
+    setCarouselLoading(true)
+
+    try {
+      let data = await fetchJson<CarouselItem[]>("/api/carousel")
+
+      if (data.length === 0) {
+        throw new Error("No display images found.")
+      }
+
+      data = data.filter((item) => !item.hidden)
+
+      setItems(data)
+    } catch (error) {
+      toast.error(
+        error.message ?? "An error occurred while fetching carousels."
+      )
+    }
+
+    setCarouselLoading(false)
+  }
 
   const fetchSettings = async () => {
     try {
@@ -23,11 +50,12 @@ const Dashboard = () => {
 
       setSettings(data)
     } catch (error) {
-      console.log(error)
+      // console.log(error)
+      toast.error(error.message ?? "An error occurred while fetching settings.")
     }
   }
 
-  const fetchData = async () => {
+  const fetchJAKIMData = async () => {
     try {
       const data = await fetchJson<PrayerTime>(`/api/prayer`, {
         method: "POST",
@@ -38,16 +66,22 @@ const Dashboard = () => {
 
       // console.log(data)
     } catch (error) {
-      console.log(error)
+      // console.log(error)
+      toast.error(
+        error.message ?? "An error occurred while fetching JAKIM prayer times."
+      )
     }
   }
 
   useEffect(() => {
-    fetchData()
+    fetchJAKIMData()
     fetchSettings()
+    fetchCarouselData()
 
     const interval = setInterval(() => {
-      fetchData()
+      fetchJAKIMData()
+      fetchSettings()
+      fetchCarouselData()
     }, 60000)
     return () => clearInterval(interval)
   }, [])
@@ -68,7 +102,18 @@ const Dashboard = () => {
         className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80"
       >
         <Clock />
-        <Link href="/login">
+        <Link
+          href="/login"
+          className="flex flex-col flex-end"
+        >
+          <p className="flex items-end text-xl font-bold">
+            <span className="text-3xl">
+              <FaMosque />
+            </span>
+            <span className="ml-2">
+              Surau Al-Mustaqim, Metropolitan Square, Damansara Perdana 47820
+            </span>
+          </p>
           <DateAndHijri pt={pt} />
         </Link>
       </div>
@@ -79,7 +124,10 @@ const Dashboard = () => {
           ptLabelsToShow={ptLabels}
         />
         <div className="w-[148vh] h-screen">
-          <ImageCarousel />
+          <DisplayCarousel
+            items={items}
+            loading={carouselLoading}
+          />
         </div>
       </div>
     </div>

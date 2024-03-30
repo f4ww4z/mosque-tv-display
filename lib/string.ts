@@ -114,3 +114,7 @@ export function hijriMonthToLatin(monthNumber: string): string {
 
   return hijriMonths[monthNumber] || "Invalid month number"
 }
+
+export function randomFileName(): string {
+  return Math.random().toString(36).substring(6)
+}

@@ -1,7 +1,12 @@
 "use client"
 
+import fetchJson from "lib/fetchJson"
+import { getExtension } from "lib/string"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 import Carousel from "react-multi-carousel"
+import { toast } from "react-toastify"
+import { CarouselItem } from "types/carousel"
 
 const responsive = {
   desktop: {
@@ -66,19 +71,42 @@ const imagesData: ImageProps[] = [
   },
 ]
 
-const Card = ({ imageLink, title }: ImageProps) => {
+const Card = (item: CarouselItem) => {
+  const ext = getExtension(item.filename)
   return (
-    <Image
-      className="w-full h-auto"
-      src={imageLink}
-      alt={title}
-      width={1920}
-      height={1080}
-    />
+    <>
+      {["mp4", "mov", "avi"].includes(ext) ? (
+        <video
+          className="w-full h-auto"
+          src={`/api/carousel/${item.filename}`}
+          autoPlay
+          loop
+          muted
+        />
+      ) : (
+        <Image
+          className="w-full h-auto"
+          src={`/api/carousel/${item.filename}`}
+          alt={item.filename}
+          width={1920}
+          height={1080}
+        />
+      )}
+    </>
   )
 }
 
-const ImageCarousel = () => {
+const DisplayCarousel = ({
+  items,
+  loading,
+}: {
+  items: CarouselItem[]
+  loading: boolean
+}) => {
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
   return (
     <Carousel
       responsive={responsive}
@@ -89,9 +117,9 @@ const ImageCarousel = () => {
       autoPlaySpeed={25000}
       arrows={false}
       swipeable
-      draggable={false}
+      draggable
     >
-      {imagesData.map((a) => (
+      {items.map((a) => (
         <Card
           key={a.title}
           {...a}
@@ -101,4 +129,4 @@ const ImageCarousel = () => {
   )
 }
 
-export default ImageCarousel
+export default DisplayCarousel
