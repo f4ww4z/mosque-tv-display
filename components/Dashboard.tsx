@@ -95,6 +95,36 @@ const Dashboard = () => {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (settings.length === 0) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      try {
+        const timeToIqamah = Number(
+          settings.find((s) => s.name === "Time until iqamah (mins)").value
+        )
+
+        console.log(timeToIqamah)
+
+        const prayerModeDurationAfterIqamah = Number(
+          settings.find(
+            (s) => s.name === "Prayer mode duration after iqamah (mins)"
+          ).value
+        )
+
+        const prayerModeDurationTarawih = Number(
+          settings.find((s) => s.name === "Prayer mode duration tarawih (mins)")
+            .value
+        )
+      } catch (error) {
+        console.log(error)
+        toast.error("An error occurred while applying settings.")
+      }
+    }, 1000)
+  }, [settings])
+
   return (
     <div
       className="flex flex-col justify-start h-screen"
@@ -115,7 +145,7 @@ const Dashboard = () => {
           href="/login"
           className="flex flex-col flex-end"
         >
-          <p className="flex items-end text-xl font-bold">
+          <p className="flex items-end text-xl font-bold text-white">
             <span className="text-3xl">
               <FaMosque />
             </span>

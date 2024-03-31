@@ -72,13 +72,13 @@ const WorldClocksCard = () => {
       {worldClocks.map((wc) => (
         <div
           key={wc.city}
-          className="mx-10"
+          className="mx-6"
         >
           <AnalogClock
             key={wc.city}
             className="bg-white rounded-full drop-shadow-2xl"
             value={wc.time}
-            size={300}
+            size={150}
             hourHandWidth={10}
             minuteHandWidth={6}
             secondHandWidth={2}
