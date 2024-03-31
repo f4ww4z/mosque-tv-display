@@ -1,7 +1,10 @@
 "use client"
 
 import { getExtension } from "lib/string"
+import moment from "moment-timezone"
 import Image from "next/image"
+import { useEffect, useState } from "react"
+import AnalogClock from "react-clock"
 import Carousel from "react-multi-carousel"
 import { CarouselItem } from "types/carousel"
 
@@ -12,61 +15,82 @@ const responsive = {
   },
 }
 
-interface ImageProps {
-  imageLink: string
-  title: string
-}
-
-const imagesData: ImageProps[] = [
+const worldTimezones = [
   {
-    imageLink: "/api/image/3.jpg",
-    title: "Marhaban ya Ramadhan",
+    city: "Makkah",
+    timezone: "Asia/Riyadh",
   },
   {
-    imageLink: "/api/image/4.jpg",
-    title: "bacaan surah selepas maghrib",
+    city: "Madinah",
+    timezone: "Asia/Riyadh",
   },
   {
-    imageLink: "/api/image/5.jpg",
-    title: "bacaan surah selepas subuh",
+    city: "Jakarta",
+    timezone: "Asia/Jakarta",
   },
   {
-    imageLink: "/api/image/6.jpg",
-    title: "bacaan tahlil ramadhan",
+    city: "Istanbul",
+    timezone: "Europe/Istanbul",
   },
   {
-    imageLink: "/api/image/8.jpg",
-    title: "majlis buka puasa",
-  },
-  {
-    imageLink: "/api/image/9.jpg",
-    title: "jadwal imam solat ramadhan",
-  },
-  {
-    imageLink: "/api/image/10.jpg",
-    title: "program ramadhan",
-  },
-  {
-    imageLink: "/api/image/14.jpg",
-    title: "aktiviti-aktiviti",
-  },
-  {
-    imageLink: "/api/image/15.jpg",
-    title: "aktiviti-aktiviti 2",
-  },
-  {
-    imageLink: "/api/image/16.jpg",
-    title: "niat iktikaf",
-  },
-  {
-    imageLink: "/api/image/18.jpg",
-    title: "doa untuk palestin",
-  },
-  {
-    imageLink: "/api/image/19.jpg",
-    title: "boycott israhell",
+    city: "Islamabad",
+    timezone: "Asia/Karachi",
   },
 ]
+
+interface WorldClock {
+  city: string
+  time: Date
+}
+
+const WorldClocksCard = () => {
+  const [worldClocks, setWorldClocks] = useState<WorldClock[]>([])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const clocks = worldTimezones.map((wc) => ({
+        city: wc.city,
+        time: new Date(moment().tz(wc.timezone).format("YYYY-MM-DDTHH:mm:ss")),
+      }))
+      setWorldClocks(clocks)
+
+      // console.log(clocks)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div
+      key="world-clock-card"
+      className="flex flex-wrap items-center justify-center w-full h-full py-6"
+      style={{
+        backgroundImage: "url('/clock_background.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {worldClocks.map((wc) => (
+        <div
+          key={wc.city}
+          className="mx-10"
+        >
+          <AnalogClock
+            key={wc.city}
+            className="bg-white rounded-full drop-shadow-2xl"
+            value={wc.time}
+            size={300}
+            hourHandWidth={10}
+            minuteHandWidth={6}
+            secondHandWidth={2}
+          />
+          <p className="mt-2 text-3xl font-bold text-center uppercase drop-shadow-2xl">
+            {wc.city}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const Card = (item: CarouselItem) => {
   const ext = getExtension(item.filename)
@@ -115,7 +139,9 @@ const DisplayCarousel = ({
       arrows={false}
       swipeable
       draggable
+      pauseOnHover
     >
+      <WorldClocksCard />
       {items.map((a) => (
         <Card
           key={a.title}

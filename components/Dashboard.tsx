@@ -3,15 +3,15 @@
 import fetchJson from "lib/fetchJson"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { FaMosque } from "react-icons/fa"
+import { toast } from "react-toastify"
+import { CarouselItem } from "types/carousel"
 import { PrayerTime } from "types/prayer"
-import Clock from "./Clock"
 import DateAndHijri from "./DateAndHijri"
 import DisplayCarousel from "./DisplayCarousel"
 import DoNotDisturbScreen from "./DoNotDisturbScreen"
+import MyClock from "./MyClock"
 import PrayerTimetable from "./PrayerTimetable"
-import { CarouselItem } from "types/carousel"
-import { toast } from "react-toastify"
-import { FaMosque } from "react-icons/fa"
 
 const ptLabels = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
@@ -42,6 +42,15 @@ const Dashboard = () => {
     }
 
     setCarouselLoading(false)
+  }
+
+  const fetchCarouselDataEvery12Hours = async () => {
+    const currentDate = new Date()
+    const currentHour = currentDate.getHours()
+    const currentMinute = currentDate.getMinutes()
+    if (currentHour === 12 && currentMinute === 0) {
+      fetchCarouselData()
+    }
   }
 
   const fetchSettings = async () => {
@@ -81,7 +90,7 @@ const Dashboard = () => {
     const interval = setInterval(() => {
       fetchJAKIMData()
       fetchSettings()
-      fetchCarouselData()
+      fetchCarouselDataEvery12Hours()
     }, 60000)
     return () => clearInterval(interval)
   }, [])
@@ -101,7 +110,7 @@ const Dashboard = () => {
         onClick={() => setDoNotDisturb(!doNotDisturb)}
         className="flex items-center justify-between w-full px-4 py-2 bg-gradient-to-br to-teal-950/80 from-cyan-950/80"
       >
-        <Clock />
+        <MyClock />
         <Link
           href="/login"
           className="flex flex-col flex-end"

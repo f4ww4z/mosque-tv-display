@@ -3,7 +3,7 @@
 import moment from "moment"
 import { useState, useEffect } from "react"
 
-const Clock = () => {
+const MyClock = () => {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {
@@ -20,4 +20,4 @@ const Clock = () => {
   )
 }
 
-export default Clock
+export default MyClock

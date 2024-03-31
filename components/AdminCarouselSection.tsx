@@ -86,14 +86,16 @@ const AdminCarouselSection = () => {
                 autoPlay
                 loop
                 muted
+                width={640}
+                height={480}
               />
             ) : (
               <Image
                 className={`${item.hidden && "grayscale"} w-auto h-full`}
                 src={`/api/carousel/${item.filename}`}
                 alt={item.filename}
-                width={1920}
-                height={1080}
+                width={640}
+                height={480}
               />
             )}
             <div className="flex flex-col p-2 mx-2 text-lg">
@@ -221,7 +223,7 @@ const AdminCarouselSection = () => {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="file">File</label>
+            <label htmlFor="file">File (1080p recommended)</label>
             <div
               {...getRootProps()}
               className="relative flex flex-col items-center justify-center p-2 text-center transition border border-dashed rounded-md hover:cursor-pointer h-60 hover:bg-cyan-700"
@@ -260,7 +262,7 @@ const AdminCarouselSection = () => {
                 <>
                   <p>
                     Drag & drop an image or video file here, or click to select
-                    files...
+                    a file...
                   </p>
                   <p className="mt-1 font-semibold">
                     (Max {maxFileSizeInMb}MB)
@@ -278,10 +280,12 @@ const AdminCarouselSection = () => {
           </div>
           <button
             type="submit"
-            className="py-2 pl-3 pr-4 ml-auto transition bg-teal-700 rounded-lg hover:bg-teal-800 flex-nowrap disabled:opacity-30"
+            className="py-2 pl-3 pr-4 ml-auto transition bg-teal-700 rounded-lg hover:bg-teal-800 flex-nowrap disabled:opacity-50"
             disabled={loadingCreate}
           >
-            <span className="text-md">Create</span>
+            <span className="text-md">
+              {loadingCreate ? "Uploading..." : "Create"}
+            </span>
           </button>
         </form>
       </div>
