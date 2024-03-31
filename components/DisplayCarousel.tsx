@@ -1,11 +1,8 @@
 "use client"
 
-import fetchJson from "lib/fetchJson"
 import { getExtension } from "lib/string"
 import Image from "next/image"
-import { useEffect, useState } from "react"
 import Carousel from "react-multi-carousel"
-import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
 
 const responsive = {

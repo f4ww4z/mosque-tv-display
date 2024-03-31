@@ -10,3 +10,7 @@ export interface CarouselSwapRequest {
   itemSwapFromId: string
   itemSwapToId: string
 }
+
+export interface CarouselItemDeleteRequest {
+  itemId: string
+}

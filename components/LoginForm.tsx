@@ -1,12 +1,12 @@
 "use client"
 
-import Link from "next/link"
-import { FormEvent, useEffect, useState } from "react"
 import { signIn, useSession } from "next-auth/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { FormEvent, useEffect, useState } from "react"
 
 const LoginForm = () => {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 

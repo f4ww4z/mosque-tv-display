@@ -2,18 +2,18 @@
 
 import { CarouselItem } from "@prisma/client"
 import fetchJson from "lib/fetchJson"
-import { formatFileSize } from "lib/string"
+import { formatFileSize, getExtension } from "lib/string"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone"
+import { BiSolidHide } from "react-icons/bi"
+import { FaTrash } from "react-icons/fa"
+import { GrFormViewHide } from "react-icons/gr"
 import { IoMdAdd, IoMdRefresh } from "react-icons/io"
 import { toast } from "react-toastify"
-import Modal from "./Modal"
 import Sortable from "sortablejs"
-import { GrFormViewHide } from "react-icons/gr"
-import { BiSolidHide } from "react-icons/bi"
-import { CarouselSwapRequest } from "types/carousel"
-import { FaTrash } from "react-icons/fa"
+import { CarouselItemDeleteRequest, CarouselSwapRequest } from "types/carousel"
+import Modal from "./Modal"
 
 const maxFileSizeInMb = 50
 
@@ -22,6 +22,7 @@ const AdminCarouselSection = () => {
   const [loading, setLoading] = useState(true)
   const [createNewModalOpen, setCreateNewModalOpen] = useState(false)
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<CarouselItem | null>(null)
 
   const fetchCarouselData = async () => {
     setLoading(true)
@@ -78,13 +79,23 @@ const AdminCarouselSection = () => {
             key={item.id}
             className={`${item.hidden ? "bg-gray-800 hover:bg-gray-700" : "bg-cyan-800 hover:bg-teal-700"} flex relative items-center w-[600px] text-white overflow-hidden transition hover:cursor-move h-48 rounded-2xl`}
           >
-            <Image
-              className={`${item.hidden && "grayscale"} w-auto h-full`}
-              src={`/api/carousel/${item.filename}`}
-              alt={item.title}
-              width={1920}
-              height={1080}
-            />
+            {["mp4", "mov", "avi"].includes(getExtension(item.filename)) ? (
+              <video
+                className={`${item.hidden && "grayscale"} w-auto h-full`}
+                src={`/api/carousel/${item.filename}`}
+                autoPlay
+                loop
+                muted
+              />
+            ) : (
+              <Image
+                className={`${item.hidden && "grayscale"} w-auto h-full`}
+                src={`/api/carousel/${item.filename}`}
+                alt={item.filename}
+                width={1920}
+                height={1080}
+              />
+            )}
             <div className="flex flex-col p-2 mx-2 text-lg">
               <span className="font-bold">Title:</span>
               <span>{item.title}</span>
@@ -102,12 +113,15 @@ const AdminCarouselSection = () => {
                 </button>
                 <button
                   className="flex items-center gap-1 px-3 py-2 transition bg-gray-600 rounded-lg hover:bg-red-700 flex-nowrap"
-                  onClick={() => setConfirmDeleteModalOpen(true)}
+                  onClick={() => {
+                    setItemToDelete(item)
+                    setConfirmDeleteModalOpen(true)
+                  }}
                 >
                   <span className="text-2xl py-[3px]">
                     <FaTrash />
                   </span>
-                  <span className="text-base">Delete</span>
+                  <span className="text-base">Remove</span>
                 </button>
               </div>
             </div>
@@ -174,6 +188,8 @@ const AdminCarouselSection = () => {
         toast.success(`Carousel item ${item.order} created successfully!`)
 
         fetchCarouselData()
+
+        setCreateNewModalOpen(false)
       } catch (error) {
         toast.error(
           error.message ??
@@ -183,7 +199,6 @@ const AdminCarouselSection = () => {
       }
 
       setLoadingCreate(false)
-      setCreateNewModalOpen(false)
     }
 
     return (
@@ -219,7 +234,7 @@ const AdminCarouselSection = () => {
                   </p>
                   {file.type.startsWith("image") ? (
                     <Image
-                      className="h-40 w-fit"
+                      className="h-44 w-fit"
                       src={URL.createObjectURL(file)}
                       alt={file.name}
                       width={1280}
@@ -228,7 +243,7 @@ const AdminCarouselSection = () => {
                   ) : (
                     <video
                       src={URL.createObjectURL(file)}
-                      className="w-16 h-16"
+                      className="h-44 w-fit"
                       autoPlay
                       muted
                       loop
@@ -267,6 +282,94 @@ const AdminCarouselSection = () => {
             disabled={loadingCreate}
           >
             <span className="text-md">Create</span>
+          </button>
+        </form>
+      </div>
+    )
+  }
+
+  const DeleteCarouselItemModal = () => {
+    const [loadingDelete, setLoadingDelete] = useState(false)
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      setLoadingDelete(true)
+      e.preventDefault()
+
+      const data: CarouselItemDeleteRequest = {
+        itemId: itemToDelete.id,
+      }
+
+      try {
+        const res = await fetchJson<{ message: string }>("/api/carousel", {
+          method: "DELETE",
+          body: JSON.stringify(data),
+        })
+
+        toast.success(res.message)
+
+        fetchCarouselData()
+        setItemToDelete(null)
+        setConfirmDeleteModalOpen(false)
+      } catch (error) {
+        toast.error(
+          error.message ??
+            error.error ??
+            "An error occurred while deleting carousel item."
+        )
+      }
+
+      setLoadingDelete(false)
+    }
+
+    if (!itemToDelete) {
+      setConfirmDeleteModalOpen(false)
+      return <p>Item not found.</p>
+    }
+
+    return (
+      <div className="flex flex-col max-w-screen-sm p-4 text-white rounded-lg w-[512px] bg-cyan-900">
+        <h1 className="mb-4 text-2xl font-bold">Removing Carousel Item</h1>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={handleSubmit}
+        >
+          <p className="text-md">
+            Are you sure to permanently remove carousel&nbsp;
+            <span className="font-semibold">
+              &quot;{itemToDelete.title}&quot;
+            </span>
+            ?
+          </p>
+          {["mp4", "mov", "avi"].includes(
+            getExtension(itemToDelete.filename)
+          ) ? (
+            <video
+              className="w-full h-auto"
+              src={`/api/carousel/${itemToDelete.filename}`}
+              autoPlay
+              loop
+              muted
+            />
+          ) : (
+            <Image
+              className="w-full h-auto"
+              src={`/api/carousel/${itemToDelete.filename}`}
+              alt={itemToDelete.filename}
+              width={1920}
+              height={1080}
+            />
+          )}
+
+          <p className="font-semibold text-red-400 text-md">
+            This action cannot be undone.
+          </p>
+
+          <button
+            type="submit"
+            className="px-4 py-2 ml-auto transition bg-red-700 rounded-lg hover:bg-red-600 flex-nowrap disabled:opacity-30"
+            disabled={loadingDelete}
+          >
+            <span className="text-md">Remove</span>
           </button>
         </form>
       </div>
@@ -318,6 +421,12 @@ const AdminCarouselSection = () => {
 
   return (
     <div className="flex flex-col w-full">
+      <Modal
+        show={confirmDeleteModalOpen}
+        onClose={() => setConfirmDeleteModalOpen(false)}
+      >
+        <DeleteCarouselItemModal />
+      </Modal>
       <Modal
         show={createNewModalOpen}
         onClose={() => setCreateNewModalOpen(false)}

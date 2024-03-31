@@ -1,7 +1,11 @@
 import prisma from "lib/prisma"
 import { handleRequest } from "lib/requests"
 import { NextRequest, NextResponse } from "next/server"
-import { CarouselItem, CarouselSwapRequest } from "types/carousel"
+import {
+  CarouselItem,
+  CarouselItemDeleteRequest,
+  CarouselSwapRequest,
+} from "types/carousel"
 import path from "path"
 import fs from "fs"
 import { randomFileName } from "lib/string"
@@ -139,6 +143,42 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       message: `Carousel item "${itemSwapFrom.title}" swapped with "${itemSwapTo.title}" successfully.`,
+    })
+  })
+}
+
+export async function DELETE(req: NextRequest) {
+  return handleRequest(req, async () => {
+    const { itemId }: CarouselItemDeleteRequest = await req.json()
+
+    const item = await prisma.carouselItem.findFirstOrThrow({
+      where: {
+        id: itemId,
+      },
+      select: {
+        id: true,
+        title: true,
+        filename: true,
+      },
+    })
+
+    const filePath = path.join(
+      process.env.ROOT_FILES_PATH,
+      `/carousel/${item.filename}`
+    )
+
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath)
+    }
+
+    await prisma.carouselItem.delete({
+      where: {
+        id: itemId,
+      },
+    })
+
+    return NextResponse.json({
+      message: `Carousel item "${item.title}" removed successfully.`,
     })
   })
 }

@@ -15,7 +15,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 const AdminNavbar = () => {
   return (
-    <nav className="fixed w-full h-16 p-4 text-white bg-cyan-700">
+    <nav className="fixed z-50 w-full h-16 p-4 text-white bg-cyan-700">
       <ul className="flex justify-between w-full">
         <li className="px-2 py-1 text-2xl transition rounded-md hover:bg-cyan-900 hover:cursor-pointer">
           <VscThreeBars />
@@ -43,7 +43,7 @@ const scrollTo = (elementId: string) => {
 
 const AdminSidebar = () => {
   return (
-    <nav className="flex h-screen text-white w-52 bg-cyan-800">
+    <nav className="flex h-auto text-white w-52 bg-cyan-800">
       <ul className="w-full">
         <li
           className="flex items-center w-full px-4 py-3 transition flex-nowrap hover:bg-teal-700 hover:cursor-pointer"
