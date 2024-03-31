@@ -10,8 +10,8 @@ const DateAndHijri = ({ pt }: { pt: PrayerTime }) => {
   }
 
   return (
-    <div className="flex flex-nowrap items-end text-3xl font-bold text-amber-100 drop-shadow-2xl">
-      <span className="mb-1">
+    <div className="flex items-center justify-end mt-1 text-3xl font-bold flex-nowrap text-amber-100 drop-shadow-2xl">
+      <span className="">
         {moment(new Date()).format("dddd, DD MMMM YYYY")}
       </span>
       <span className="mx-2">/</span>

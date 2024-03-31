@@ -62,7 +62,7 @@ const WorldClocksCard = () => {
   return (
     <div
       key="world-clock-card"
-      className="flex flex-wrap items-center justify-center w-full h-full py-6"
+      className="flex flex-wrap items-center justify-center w-full h-full py-1"
       style={{
         backgroundImage: "url('/clock_background.png')",
         backgroundSize: "cover",
@@ -78,7 +78,7 @@ const WorldClocksCard = () => {
             key={wc.city}
             className="bg-white rounded-full drop-shadow-2xl"
             value={wc.time}
-            size={150}
+            size={200}
             hourHandWidth={10}
             minuteHandWidth={6}
             secondHandWidth={2}

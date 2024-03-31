@@ -23,7 +23,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <SessionProvider>
-        <body className={inter.className}>
+        <body className={`${inter.className} text-white`}>
           <ToastContainer />
           {children}
         </body>
