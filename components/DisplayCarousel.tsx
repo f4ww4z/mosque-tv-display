@@ -29,6 +29,10 @@ const worldTimezones = [
     timezone: "Asia/Jakarta",
   },
   {
+    city: "Dubai",
+    timezone: "Asia/Dubai",
+  },
+  {
     city: "Istanbul",
     timezone: "Europe/Istanbul",
   },

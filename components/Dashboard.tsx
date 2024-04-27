@@ -92,6 +92,7 @@ const Dashboard = () => {
       fetchSettings()
       fetchCarouselDataEvery12Hours()
     }, 60000)
+
     return () => clearInterval(interval)
   }, [])
 
@@ -123,6 +124,8 @@ const Dashboard = () => {
         toast.error("An error occurred while applying settings.")
       }
     }, 1000)
+
+    return () => clearInterval(interval)
   }, [settings])
 
   return (

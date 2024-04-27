@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   prisma:
     image: node:20
