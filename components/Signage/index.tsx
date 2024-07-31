@@ -58,7 +58,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
       setProfile(data)
 
-      document.title = `Paparan ${toSentenceCase(data.type)} ${data.name} | ESA`
+      document.title = `Paparan ${toSentenceCase(data.type)} ${data.name} | PTM`
     } catch (error) {
       toast.error(
         error.message ?? "Error berlaku semasa mengakses profil masjid."

@@ -8,7 +8,7 @@ export const generateMetadata = ({
   description?: string
 }) => {
   return {
-    title: `${title} | ESA`,
+    title: `${title} | PTM`,
     description:
       description ??
       "A digital signage solution for mosques to display prayer times, announcements, and more.",
