@@ -1,42 +1,77 @@
 import { Role } from "@prisma/client"
-import { Session, getServerSession } from "next-auth"
+import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import { getAuthOptions } from "./auth"
-import prisma from "./prisma"
+import { SessionUser } from "types/user"
+import { verifyAndDecodeJWTToken } from "./auth"
 
 export async function handleRequest(
   req: NextRequest,
-  callback: ({ session }: { session?: Session }) => Promise<NextResponse>,
+  callback: ({
+    sessionUser,
+  }: {
+    sessionUser?: SessionUser
+  }) => Promise<NextResponse>,
   needAuth = true
 ) {
   try {
-    let session: Session
+    if (!needAuth) {
+      return await callback({})
+    }
 
-    if (needAuth) {
-      session = await getServerSession(getAuthOptions(prisma))
+    const authorization = headers().get("Authorization")
 
-      if (!session) {
-        throw new Error("Unauthenticated")
-      }
+    if (!authorization) {
+      throw new Error("Sila log masuk untuk pergi ke laman ini.")
+    }
 
-      // check if admin and accessing admin routes
-      if (
-        req.nextUrl.pathname.startsWith("/api/admin") &&
-        session?.user?.role !== Role.ADMIN
-      ) {
-        throw new Error("You are not authorized to access this page.")
+    const jwt = authorization.split(" ")[1]
+    if (!jwt) {
+      throw new Error("Sila log masuk untuk meneruskan request ini.")
+    }
+
+    const sessionUser = verifyAndDecodeJWTToken<SessionUser>(jwt)
+
+    if (!sessionUser) {
+      throw new Error("Sila log masuk untuk meneruskan request ini.")
+    }
+
+    // check if admin and accessing admin routes
+    if (
+      req.nextUrl.pathname.startsWith("/api/admin") &&
+      sessionUser.role !== Role.SUPERADMIN
+    ) {
+      throw new Error("Anda tidak dibenarkan mengakses halaman ini.")
+    }
+
+    // Masjid admins can only CUD their own masjid
+    if (
+      req.nextUrl.pathname.startsWith("/api/masjid") &&
+      sessionUser.role === Role.MASJID_ADMIN
+    ) {
+      const masjidId = req.nextUrl.pathname.split("/")[3]
+
+      if (sessionUser.masjidId !== masjidId && req.method !== "GET") {
+        throw new Error("Anda tidak dibenarkan mengedit masjid ini.")
       }
     }
 
-    return await callback({ session })
+    return await callback({ sessionUser })
   } catch (error) {
     console.log(error)
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "An unknown error occurred",
+          error instanceof Error
+            ? error.message
+            : "Error yang tidak diketahui berlaku",
       },
-      { status: 500 }
+      {
+        status: 500,
+        statusText:
+          error instanceof Error
+            ? error.message
+            : "Error yang tidak diketahui berlaku",
+      }
     )
   }
 }

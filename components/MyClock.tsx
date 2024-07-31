@@ -3,7 +3,7 @@
 import moment from "moment"
 import { useState, useEffect } from "react"
 
-const MyClock = () => {
+const MyClock = ({ theme }: { theme: string }) => {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {
@@ -14,9 +14,13 @@ const MyClock = () => {
   }, [])
 
   return (
-    <p className="m-0 font-bold text-amber-100 text-8xl drop-shadow-2xl">
-      {moment(time).utcOffset(8).format("HH:mm")}
-    </p>
+    <div
+      className={`flex items-center justify-center px-8 py-4 text-center bg-${theme}-lighter`}
+    >
+      <p className="m-0 font-sans font-bold text-amber-100 text-8xl">
+        {moment(time).utcOffset(8).format("HH:mm")}
+      </p>
+    </div>
   )
 }
 

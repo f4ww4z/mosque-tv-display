@@ -14,33 +14,184 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Malaysia city data for JAKIM prayer times
+
+model State {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  zones Zone[]
+}
+
+model Zone {
+  id      Int    @id @default(autoincrement())
+  code    String @unique
+  stateId Int
+  state   State  @relation(fields: [stateId], references: [id])
+  cities  City[]
+}
+
+model City {
+  id      Int      @id @default(autoincrement())
+  name    String
+  zoneId  Int
+  zone    Zone     @relation(fields: [zoneId], references: [id])
+  masjids Masjid[]
+}
+
 enum Role {
-  USER
-  ADMIN
+  MASJID_ADMIN
+  SUPERADMIN
 }
 
+// User can be masjid admin or superadmin
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  fullName String?
-  role     Role    @default(USER)
-  password String
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  email       String   @unique
+  phoneNumber String
+  fullName    String?
+  role        Role     @default(MASJID_ADMIN)
+  password    String
+  masjidId    String?
+  masjid      Masjid?  @relation(fields: [masjidId], references: [id])
 }
 
-model Settings {
-  id        String   @id @default(cuid())
-  name      String
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum MasjidType {
+  SURAU
+  MASJID
+}
+
+model Masjid {
+  id                 String          @id @default(cuid())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  type               MasjidType      @default(SURAU)
+  registrationNumber String?         @unique
+  name               String
+  address            String
+  cityId             Int
+  city               City            @relation(fields: [cityId], references: [id])
+  postalCode         String
+  country            String
+  phone              String
+  email              String
+  whatsappGroupLink  String?
+  websiteUrl         String?
+  facebookUrl        String?
+  instagramUrl       String?
+  youtubeUrl         String?
+  admins             User[]
+  settings           MasjidSettings?
+  carouselItems      CarouselItem[]
+  events             Event[]
+  facilities         Facility[]
+}
+
+model MasjidSettings {
+  id                    String             @id @default(cuid())
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  masjidId              String             @unique
+  masjid                Masjid             @relation(fields: [masjidId], references: [id])
+  language              String             @default("ms")
+  timeUntilIqamah       Int                @default(10)
+  notifyPrayerTimeSound String             @default("/sounds/azan1.wav")
+  timeUntilPrayerEnds   Int                @default(15)
+  timeBetweenSlideshows Int                @default(30)
+  newsTexts             String[]
+  theme                 String             @default("teal")
+  worldClocks           MasjidWorldClock[]
+  worldClockBackground  String             @default("/clock_background.png")
+}
+
+model MasjidWorldClock {
+  id               String         @id @default(cuid())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  masjidSettingsId String
+  masjidSettings   MasjidSettings @relation(fields: [masjidSettingsId], references: [id])
+  city             String
+  timezone         String
 }
 
 model CarouselItem {
   id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   title     String?
   filename  String
   order     Int
   hidden    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  masjidId  String
+  masjid    Masjid   @relation(fields: [masjidId], references: [id])
+}
+
+model AdminSettings {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  monthlyFee Float    @default(150)
+  yearlyFee  Float    @default(1500)
+  features   String[]
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  masjidId      String
+  masjid        Masjid   @relation(fields: [masjidId], references: [id])
+  title         String
+  description   String
+  location      String
+  startDateTime DateTime
+  endDateTime   DateTime
+  pictures      String[]
+}
+
+enum RentUnit {
+  PER_HOUR
+  PER_DAY
+}
+
+model Facility {
+  id          String            @id @default(cuid())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  masjidId    String
+  masjid      Masjid            @relation(fields: [masjidId], references: [id])
+  name        String
+  description String
+  maxCapacity Int
+  rentPrice   Float
+  rentUnit    RentUnit
+  pictures    String[]
+  picName     String
+  picPhone    String
+  bookings    FacilityBooking[]
+}
+
+enum BookingStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+model FacilityBooking {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  facilityId     String
+  facility       Facility      @relation(fields: [facilityId], references: [id])
+  startDateTime  DateTime
+  duration       Int
+  description    String
+  totalCost      Float // currently in RM
+  status         BookingStatus
+  rejectedReason String?
+  bookerName     String
+  bookerPhone    String
+  bookerEmail    String
+  paymentReceipt String
 }
