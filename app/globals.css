@@ -2,36 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
+.react-clock__hour-hand__body {
+  background-color: white !important;
+}
+
+.react-clock__minute-hand__body {
+  background-color: rgb(218, 218, 218) !important;
+}
+
+.react-clock__mark__body {
+  background-color: white !important;
+}
+
 .react-clock__second-hand {
   transition: transform cubic-bezier(0.68, 0, 0.27, 1.55) 0.6s;
+}
+
+.PhoneInput > input {
+  background: none;
+  outline: none;
 }

@@ -1,3 +1,5 @@
+import { getJWTToken } from "./auth"
+
 export class FetchError extends Error {
   response: Response
   data: {
@@ -32,8 +34,15 @@ export default async function fetchJson<JSON = unknown>(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<JSON> {
+  const headers = { "Content-Type": "application/json" }
+
+  const token = getJWTToken()
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
   const response = await fetch(input, {
-    headers: { "Content-Type": "application/json" },
+    headers,
     ...init,
   })
 

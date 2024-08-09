@@ -96,25 +96,51 @@ export function extractProtocolAndPath(url: string) {
   }
 }
 
-export function hijriMonthToLatin(monthNumber: string): string {
-  const hijriMonths = {
-    "01": "Muharram",
-    "02": "Safar",
-    "03": "Rabi al-Awwal",
-    "04": "Rabi al-Akhir",
-    "05": "Jumada al-Awwal",
-    "06": "Jumada al-Akhir",
-    "07": "Rajab",
-    "08": "Sha'ban",
-    "09": "Ramadhan",
-    "10": "Shawwal",
-    "11": "Dhu al-Qi'dah",
-    "12": "Dhu al-Hijjah",
+export function getHijriMonthName(monthNumber: number): string {
+  switch (monthNumber) {
+    case 1:
+      return "Muharram"
+    case 2:
+      return "Safar"
+    case 3:
+      return "Rabiul Awwal"
+    case 4:
+      return "Rabiul Akhir"
+    case 5:
+      return "Jamadil Awwal"
+    case 6:
+      return "Jamadil Akhir"
+    case 7:
+      return "Rejab"
+    case 8:
+      return "Syaaban"
+    case 9:
+      return "Ramadhan"
+    case 10:
+      return "Syawal"
+    case 11:
+      return "Zulkaedah"
+    case 12:
+      return "Zulhijjah"
+    default:
+      return "N/A"
   }
-
-  return hijriMonths[monthNumber] || "Invalid month number"
 }
 
 export function randomFileName(): string {
   return Math.random().toString(36).substring(6)
+}
+
+export function unsecuredCopyToClipboard(text: string) {
+  const textArea = document.createElement("textarea")
+  textArea.value = text
+  document.body.appendChild(textArea)
+  textArea.focus()
+  textArea.select()
+  try {
+    document.execCommand("copy")
+  } catch (err) {
+    console.error("Unable to copy to clipboard", err)
+  }
+  document.body.removeChild(textArea)
 }

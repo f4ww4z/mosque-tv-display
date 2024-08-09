@@ -36,7 +36,7 @@ const Modal = ({ show, onClose, children }: ModalProps) => {
       }}
     >
       <div
-        className="relative p-1 bg-white border-2 rounded-lg dark:bg-dark"
+        className="relative p-1 mx-1 bg-white border-2 rounded-lg dark:bg-primary-darker"
         ref={innerDivRef}
       >
         <div

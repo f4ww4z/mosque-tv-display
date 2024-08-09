@@ -2,7 +2,7 @@ import moment from "moment"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
-const DoNotDisturbScreen = ({ onClick }: { onClick: () => void }) => {
+const DoNotDisturbScreen = ({ onClick }: { onClick?: () => void }) => {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {
@@ -11,13 +11,14 @@ const DoNotDisturbScreen = ({ onClick }: { onClick: () => void }) => {
     }, 1000)
     return () => clearInterval(interval)
   }, [])
+
   return (
     <div
       onClick={onClick}
       className="fixed z-50 flex items-center justify-center w-screen h-screen text-gray-300 bg-black"
     >
       <p className="absolute w-full text-2xl font-semibold text-center bottom-14">
-        {moment(time).utcOffset(8).format("HH:mm")}
+        {moment(time).format("HH:mm")}
       </p>
       <Image
         src="/mode solat.jpg"
