@@ -1,5 +1,5 @@
 import moment from "moment"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { PiClockCountdownFill } from "react-icons/pi"
 
 const IqamahCountdown = ({
@@ -16,9 +16,9 @@ const IqamahCountdown = ({
   togglePrayerMode: (on: boolean) => void
 }) => {
   const [secondsLeftUntilIqamah, setSecondsLeftUntilIqamah] =
-    useState<number>(0)
+    useState<number>(-1)
   const [secondsLeftUntilPrayerEnds, setSecondsLeftUntilPrayerEnds] =
-    useState<number>(0)
+    useState<number>(-1)
 
   const getIqamahTimeLeftFormatted = () => {
     if (!prayerTime || secondsLeftUntilIqamah <= 0) {
@@ -30,6 +30,12 @@ const IqamahCountdown = ({
 
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
   }
+
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    audioRef.current = new Audio("/sounds/notif1.wav")
+  }, [])
 
   useEffect(() => {
     if (!prayerTime) {
@@ -54,17 +60,27 @@ const IqamahCountdown = ({
     return () => clearInterval(interval)
   }, [prayerTime])
 
+  useEffect(() => {
+    if (secondsLeftUntilIqamah === 0) {
+      if (audioRef.current) {
+        audioRef.current.play()
+      }
+    }
+
+    if (secondsLeftUntilIqamah <= 0) {
+      if (secondsLeftUntilPrayerEnds <= 0) {
+        togglePrayerMode(false)
+      } else {
+        togglePrayerMode(true)
+      }
+    }
+  }, [secondsLeftUntilIqamah])
+
   if (!prayerTime || secondsLeftUntilIqamah >= timeUntilIqamah * 60) {
     return null
   }
 
   if (secondsLeftUntilIqamah <= 0) {
-    if (secondsLeftUntilPrayerEnds <= 0) {
-      togglePrayerMode(false)
-    } else {
-      togglePrayerMode(true)
-    }
-
     return null
   }
 

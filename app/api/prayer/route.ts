@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   return handleRequest(
     req,
     async () => {
-      moment.locale("ms")
+      moment.locale("en")
 
       const today = new Date()
       const tomorrow = new Date(
@@ -84,6 +84,7 @@ export async function GET(req: NextRequest) {
         const hijriDateFormatted = `${hijriDay} ${hijriMonthName} ${hijriYear}H`
 
         const date = moment(response.prayerTime[0].date, "DD-MMM-YYYY")
+        date.locale("ms")
         const dateFormatted = date.format("dddd, Do MMMM yyyy")
 
         const prayerTime: PrayerTimeResponse = {
