@@ -16,13 +16,6 @@ import { IoMdAdd, IoMdRefresh } from "react-icons/io"
 import { MdEdit } from "react-icons/md"
 import { toast } from "react-toastify"
 import {
-  CreateEventRequest,
-  CreateEventResponse,
-  DeleteEventRequest,
-  EventResponse,
-  UpdateEventRequest,
-} from "types/event"
-import {
   BriefFacilityResponse,
   CreateFacilityRequest,
   CreateFacilityResponse,
@@ -35,9 +28,9 @@ const MasjidFacilities = ({ id }: { id: string }) => {
   const [items, setItems] = useState<BriefFacilityResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [createNewModalOpen, setCreateNewModalOpen] = useState(false)
-  const [updateModalOpen, setUpdateModalOpen] = useState(false)
+  // const [updateModalOpen, setUpdateModalOpen] = useState(false)
   const [uploadPictureModalOpen, setUploadPictureModalOpen] = useState(false)
-  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false)
+  // const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] =
     useState<FacilityDetailResponse | null>(null)
 

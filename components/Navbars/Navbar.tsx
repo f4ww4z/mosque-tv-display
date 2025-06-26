@@ -3,7 +3,6 @@
 import LoadingIndicator from "components/LoadingIndicator"
 import Shimmer from "components/Shimmer"
 import { elMessiri } from "lib/fonts"
-import Image from "next/image"
 import Link from "next/link"
 import { FC } from "react"
 import { FaBars } from "react-icons/fa"

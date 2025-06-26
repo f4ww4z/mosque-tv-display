@@ -1,7 +1,7 @@
 import { ZoomAndFade } from "components/Animations"
 import { generateMetadata } from "lib/metadata"
 import Link from "next/link"
-import { FaInstagram, FaLinkedin, FaPhoneAlt } from "react-icons/fa"
+import { FaInstagram } from "react-icons/fa"
 import { FaFacebook } from "react-icons/fa6"
 import { IoIosMail } from "react-icons/io"
 

@@ -7,7 +7,6 @@ import { IoMdSettings } from "react-icons/io"
 import {
   MdEvent,
   MdOutlineViewCarousel,
-  MdRoomPreferences,
   MdSpaceDashboard,
 } from "react-icons/md"
 
