@@ -4,7 +4,12 @@ import LoadingIndicator from "components/LoadingIndicator"
 import fetchJson from "lib/fetchJson"
 import { toSentenceCase } from "lib/string"
 import { useEffect, useState } from "react"
-import { MdFullscreen, MdFullscreenExit, MdZoomIn, MdZoomOut } from "react-icons/md"
+import {
+  MdFullscreen,
+  MdFullscreenExit,
+  MdZoomIn,
+  MdZoomOut,
+} from "react-icons/md"
 import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
@@ -188,7 +193,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       <div
         style={{
           transform: `scale(${zoomLevel})`,
-          transformOrigin: 'top left',
+          transformOrigin: "top left",
           width: `${100 / zoomLevel}%`,
           height: `${100 / zoomLevel}%`,
         }}

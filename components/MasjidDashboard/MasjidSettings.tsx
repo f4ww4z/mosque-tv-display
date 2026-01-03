@@ -324,7 +324,8 @@ const MasjidSettings = ({ id }: { id: string }) => {
                   <Asterisk />
                 </label>
                 <p className="text-sm text-gray-400">
-                  Laraskan saiz paparan untuk Android boxes dengan resolusi lebih kecil. Default: 0.85
+                  Laraskan saiz paparan untuk Android boxes dengan resolusi
+                  lebih kecil. Default: 0.85
                 </p>
 
                 <input

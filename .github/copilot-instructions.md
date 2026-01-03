@@ -1,11 +1,13 @@
 # Mosque TV Display - AI Agent Guide
 
 ## Project Overview
+
 Next.js 14 application for displaying prayer times and announcements on mosque/surau TVs. Data fetched from JAKIM e-solat portal (Malaysia). Supports multi-tenant architecture with admin dashboard for mosque management.
 
 ## Architecture
 
 ### Tech Stack
+
 - **Framework**: Next.js 14 (App Router, TypeScript)
 - **Database**: PostgreSQL with Prisma ORM
 - **Auth**: JWT with bcrypt (localStorage on client, Authorization header on server)
@@ -13,6 +15,7 @@ Next.js 14 application for displaying prayer times and announcements on mosque/s
 - **Key Libraries**: moment-timezone, react-multi-carousel, qr-code-styling
 
 ### Core Structure
+
 ```
 app/
   api/              # API routes with Next.js route handlers
@@ -33,24 +36,28 @@ prisma/
 ## Critical Patterns
 
 ### Multi-Tenant & Role-Based Access
+
 - Two roles: `MASJID_ADMIN` (per-mosque), `SUPERADMIN` (platform-wide)
 - Every API route uses `handleRequest()` wrapper from [lib/requests.ts](lib/requests.ts) for auth
 - Masjid admins auto-scoped to their `masjidId` via JWT session
 - Example: See [app/api/masjid/[masjidId]/profile/route.ts](app/api/masjid/[masjidId]/profile/route.ts)
 
 ### Dynamic Theming
+
 - Settings table stores theme color (e.g., "teal", "blue")
 - Use Tailwind classes like `bg-${theme}-darker`, `text-${theme}-lighter`
 - Must configure themes in [tailwind.config.ts](tailwind.config.ts) safelist
 - Applied in [components/Signage/index.tsx](components/Signage/index.tsx)
 
 ### Prayer Times Integration
+
 - Fetched from `/api/prayer?city=<cityName>&countryCode=<code>`
 - Uses JAKIM e-solat API for Malaysian prayer times
 - Cities linked to zones/states in Prisma (see `City`, `Zone`, `State` models)
 - Real-time countdown in [components/Signage/PrayerTimetable.tsx](components/Signage/PrayerTimetable.tsx)
 
 ### File Uploads & Carousels
+
 - Images stored in `/public/` directory with filenames in DB
 - Carousel items ordered by `order` field, filterable by `hidden` flag
 - Sharp library for image processing
@@ -59,16 +66,19 @@ prisma/
 ## Database Conventions
 
 ### Prisma Client
+
 - Import from `lib/prisma.ts` (singleton pattern)
 - Always use `cuid()` for IDs (not autoincrement)
 - Timestamps: `createdAt`, `updatedAt` (auto-managed)
 
 ### Key Relationships
+
 - `Masjid` → `User` (admins), `MasjidSettings`, `CarouselItem`, `Event`, `Facility`
 - `MasjidSettings` → `MasjidWorldClock[]` (for world clocks display)
 - `City` → `Zone` → `State` (Malaysian geography, seeded from [lib/seed.ts](lib/seed.ts))
 
 ### Enums
+
 - `Role`: MASJID_ADMIN, SUPERADMIN
 - `MasjidType`: SURAU, MASJID
 - `RentUnit`: PER_HOUR, PER_DAY
@@ -77,6 +87,7 @@ prisma/
 ## Developer Workflows
 
 ### Database Commands
+
 ```bash
 # Apply migrations
 npx prisma migrate dev --name <description>
@@ -89,6 +100,7 @@ npm run playground  # or directly: ts-node lib/seed.ts
 ```
 
 ### Local Development
+
 ```bash
 # Start dev server (uses dotenv-cli for .env)
 npm run dev
@@ -101,12 +113,14 @@ npm run hashPassword
 ```
 
 ### Deployment
+
 - See [redeploy.sh](redeploy.sh) for production deployment script
 - Prisma generates client for `linux-musl-openssl-3.0.x` (check schema.prisma binaryTargets)
 
 ## API Route Patterns
 
 ### Standard Flow
+
 1. Import `handleRequest` from [lib/requests.ts](lib/requests.ts)
 2. Set `export const dynamic = "force-dynamic"` for no caching
 3. Validate JWT → extract `sessionUser`
@@ -114,16 +128,23 @@ npm run hashPassword
 5. Return `NextResponse.json()` or throw error
 
 Example:
+
 ```typescript
-export async function GET(req: NextRequest, { params }: { params: { masjidId: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { masjidId: string } }
+) {
   return handleRequest(req, async ({ sessionUser }) => {
-    const data = await prisma.masjid.findFirst({ where: { id: params.masjidId } })
+    const data = await prisma.masjid.findFirst({
+      where: { id: params.masjidId },
+    })
     return NextResponse.json(data)
   })
 }
 ```
 
 ### Error Handling
+
 - Throw errors with Malay messages (e.g., "Masjid tidak ditemukan")
 - `handleRequest` catches and returns 400/401/500 automatically
 - Client uses [lib/fetchJson.ts](lib/fetchJson.ts) wrapper for automatic error parsing
@@ -131,7 +152,9 @@ export async function GET(req: NextRequest, { params }: { params: { masjidId: st
 ## Signage Display Logic
 
 ### Component Hierarchy
+
 [components/Signage/index.tsx](components/Signage/index.tsx) orchestrates:
+
 - `Profile` (mosque name/logo)
 - `Calendar` (Gregorian + Hijri dates)
 - `MyClock` (analog clock with timezone)
@@ -140,6 +163,7 @@ export async function GET(req: NextRequest, { params }: { params: { masjidId: st
 - `NewsBanner` (scrolling news from `newsTexts[]`)
 
 ### Do Not Disturb Mode
+
 - Triggered during prayer time (between azan and iqamah end)
 - Overlays [components/DoNotDisturbScreen.tsx](components/DoNotDisturbScreen.tsx)
 - Controlled by `togglePrayerMode` callback
@@ -147,16 +171,19 @@ export async function GET(req: NextRequest, { params }: { params: { masjidId: st
 ## Conventions & Style
 
 ### Language
+
 - UI primarily in Malay (Bahasa Malaysia)
 - Error messages in Malay
 - Database fields/code in English
 
 ### Component Patterns
+
 - Use "use client" for interactive components
 - Server components for static pages (e.g., [app/signage/[masjidId]/page.tsx](app/signage/[masjidId]/page.tsx))
 - Custom hooks in [components/Hooks/](components/Hooks/)
 
 ### Type Definitions
+
 - Located in [types/](types/) directory
 - Match Prisma models but may have additional fields for API responses
 - Example: `MasjidProfileResponse` includes nested zones/cities
