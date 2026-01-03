@@ -14,24 +14,24 @@ const Profile = ({
 }) => {
   return (
     <div
-      className={`z-10 drop-shadow-xl absolute flex w-full max-w-4xl items-center gap-4 pl-8 pr-16 py-4 rounded-br-[100px] bg-gradient-to-r from-${theme}-light to-${theme}-lighter flex-nowrap`}
+      className={`z-10 drop-shadow-xl absolute flex w-full max-w-xl items-center gap-2 pl-3 pr-6 py-2 rounded-br-[50px] bg-gradient-to-r from-${theme}-light to-${theme}-lighter flex-nowrap`}
     >
-      <FaMosque className="text-white text-8xl w-52" />
-      <div className="flex flex-col justify-start w-full gap-2">
+      <FaMosque className="text-white text-4xl w-24" />
+      <div className="flex flex-col justify-start w-full gap-1">
         {!data ? (
           <>
-            <Shimmer h={44} />
-            <Shimmer h={32} />
+            <Shimmer h={36} />
+            <Shimmer h={24} />
           </>
         ) : (
           <>
-            <p className="text-5xl font-bold">
+            <p className="text-2xl font-bold leading-tight">
               <span className={theme !== "gold" && `text-[#FFCD6C]`}>
                 {toSentenceCase(data?.type)}
               </span>
               &nbsp;{data?.name}
             </p>
-            <p className="text-lg font-normal leading-tight">{data?.address}</p>
+            <p className="text-xs font-normal leading-tight">{data?.address}</p>
           </>
         )}
       </div>

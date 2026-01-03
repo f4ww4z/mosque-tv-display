@@ -38,6 +38,7 @@ export async function GET(
               timeBetweenSlideshows: true,
               newsTexts: true,
               theme: true,
+              zoomLevel: true,
               worldClocks: {
                 select: {
                   city: true,
@@ -88,7 +89,30 @@ export async function PUT(
           timeBetweenSlideshows: data.timeBetweenSlideshows,
           newsTexts: data.newsTexts,
           theme: data.theme,
+          zoomLevel: data.zoomLevel,
         },
+      })
+
+      return NextResponse.json({ success: true })
+    },
+    false
+  )
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { masjidId: string } }
+) {
+  return handleRequest(
+    req,
+    async () => {
+      const data: Partial<MasjidSettingsUpdateRequest> = await req.json()
+
+      await prisma.masjidSettings.update({
+        where: {
+          masjidId: params.masjidId,
+        },
+        data: data,
       })
 
       return NextResponse.json({ success: true })

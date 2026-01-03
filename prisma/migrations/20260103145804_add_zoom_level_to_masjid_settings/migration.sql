@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "MasjidSettings" ADD COLUMN     "zoomLevel" DOUBLE PRECISION NOT NULL DEFAULT 0.85;

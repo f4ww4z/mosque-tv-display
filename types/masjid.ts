@@ -57,6 +57,7 @@ export interface MasjidSettingsUpdateRequest {
   timeBetweenSlideshows: number
   newsTexts: string[]
   theme: string
+  zoomLevel?: number
   worldClocks?: MasjidWorldClocksResponse[]
   worldClockBackground?: string
 }

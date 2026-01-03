@@ -4,7 +4,7 @@ import LoadingIndicator from "components/LoadingIndicator"
 import fetchJson from "lib/fetchJson"
 import { toSentenceCase } from "lib/string"
 import { useEffect, useState } from "react"
-import { MdFullscreen, MdFullscreenExit } from "react-icons/md"
+import { MdFullscreen, MdFullscreenExit, MdZoomIn, MdZoomOut } from "react-icons/md"
 import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
@@ -26,6 +26,31 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([])
   const [totalCarouselDuration, setTotalCarouselDuration] = useState<number>(0) // seconds
+  const [zoomLevel, setZoomLevel] = useState<number>(0.85)
+
+  const handleZoomIn = async () => {
+    const newZoom = Math.min(zoomLevel + 0.05, 1.5)
+    setZoomLevel(newZoom)
+    await saveZoomLevel(newZoom)
+  }
+
+  const handleZoomOut = async () => {
+    const newZoom = Math.max(zoomLevel - 0.05, 0.5)
+    setZoomLevel(newZoom)
+    await saveZoomLevel(newZoom)
+  }
+
+  const saveZoomLevel = async (zoom: number) => {
+    try {
+      await fetchJson(`/api/masjid/${displayedMasjidId}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ zoomLevel: zoom }),
+      })
+    } catch (error) {
+      console.error("Failed to save zoom level:", error)
+    }
+  }
 
   const getNewsTexts = () => {
     return settings?.settings?.newsTexts
@@ -73,6 +98,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       )
 
       setSettings(settings)
+      setZoomLevel(settings.settings?.zoomLevel ?? 0.85)
 
       const prayerTime = await fetchJson<PrayerTimeResponse>(
         `/api/prayer?city=${settings.city}&countryCode=${settings.countryCode}`
@@ -157,63 +183,91 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
   return (
     <div
-      className={`relative flex flex-col justify-start w-full h-screen bg-${settings.settings.theme}-darker`}
+      className={`relative flex flex-col justify-start w-full h-screen bg-${settings.settings.theme}-darker overflow-hidden`}
     >
-      {doNotDisturb && <DoNotDisturbScreen />}
-
-      <Profile
-        theme={settings.settings.theme}
-        data={profile}
-      />
-
-      <Calendar
-        theme={settings.settings.theme}
-        gregorian={prayerTime?.date}
-        hijri={prayerTime?.hijri}
-      />
-
-      <div className="flex w-full flex-nowrap">
-        <div className="flex flex-col w-full pt-12 max-w-80">
-          <MyClock theme={settings.settings.theme} />
-          <PrayerTimetable
-            theme={settings.settings.theme}
-            lang={settings.settings.language}
-            prayerTime={prayerTime}
-            azanAudioPath={settings.settings.notifyPrayerTimeSound}
-            timeUntilIqamah={settings.settings.timeUntilIqamah}
-            timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
-            togglePrayerMode={(isOn: boolean) => setDoNotDisturb(isOn)}
-          />
-        </div>
-
-        <div className="w-[83vw] h-full">
-          <DisplayCarousel
-            theme={settings.settings.theme}
-            masjidId={displayedMasjidId}
-            items={carouselItems}
-            loading={!carouselItems}
-            autoPlaySpeed={settings.settings.timeBetweenSlideshows * 1000}
-            worldClocks={settings.settings.worldClocks}
-          />
-        </div>
-      </div>
-
-      <NewsBanner news={getNewsTexts()} />
-
-      <button
-        className="absolute z-20 p-2 text-4xl transition duration-500 transform rounded-lg bottom-2 left-2 bg-primary opacity-10 hover:opacity-100"
-        onClick={() => {
-          if (document.fullscreenElement) {
-            document.exitFullscreen()
-            setIsFullScreen(false)
-          } else {
-            document.documentElement.requestFullscreen()
-            setIsFullScreen(true)
-          }
+      <div
+        style={{
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: 'top left',
+          width: `${100 / zoomLevel}%`,
+          height: `${100 / zoomLevel}%`,
         }}
       >
-        {isFullScreen ? <MdFullscreenExit /> : <MdFullscreen />}
-      </button>
+        {doNotDisturb && <DoNotDisturbScreen />}
+
+        <Profile
+          theme={settings.settings.theme}
+          data={profile}
+        />
+
+        <Calendar
+          theme={settings.settings.theme}
+          gregorian={prayerTime?.date}
+          hijri={prayerTime?.hijri}
+        />
+
+        <div className="flex w-full flex-nowrap">
+          <div className="flex flex-col w-full max-w-64 h-full mt-6">
+            <MyClock theme={settings.settings.theme} />
+            <div className="flex-1">
+              <PrayerTimetable
+                theme={settings.settings.theme}
+                lang={settings.settings.language}
+                prayerTime={prayerTime}
+                azanAudioPath={settings.settings.notifyPrayerTimeSound}
+                timeUntilIqamah={settings.settings.timeUntilIqamah}
+                timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
+                togglePrayerMode={(isOn: boolean) => setDoNotDisturb(isOn)}
+              />
+            </div>
+          </div>
+
+          <div className="w-[83vw] h-full">
+            <DisplayCarousel
+              theme={settings.settings.theme}
+              masjidId={displayedMasjidId}
+              items={carouselItems}
+              loading={!carouselItems}
+              autoPlaySpeed={settings.settings.timeBetweenSlideshows * 1000}
+              worldClocks={settings.settings.worldClocks}
+            />
+          </div>
+        </div>
+
+        <NewsBanner news={getNewsTexts()} />
+      </div>
+
+      <div className="absolute z-20 flex flex-col gap-2 bottom-2 left-2">
+        <button
+          className="p-2 text-4xl transition duration-500 transform rounded-lg bg-primary opacity-10 hover:opacity-100"
+          onClick={handleZoomIn}
+          title="Zoom In"
+        >
+          <MdZoomIn />
+        </button>
+        <button
+          className="p-2 text-4xl transition duration-500 transform rounded-lg bg-primary opacity-10 hover:opacity-100"
+          onClick={handleZoomOut}
+          title="Zoom Out"
+        >
+          <MdZoomOut />
+        </button>
+        <button
+          className="p-2 text-4xl transition duration-500 transform rounded-lg bg-primary opacity-10 hover:opacity-100"
+          onClick={() => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen()
+              setIsFullScreen(false)
+            } else {
+              document.documentElement.requestFullscreen()
+              setIsFullScreen(true)
+            }
+          }}
+          title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+        >
+          {isFullScreen ? <MdFullscreenExit /> : <MdFullscreen />}
+        </button>
+      </div>
     </div>
   )
 }

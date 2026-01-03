@@ -11,25 +11,25 @@ const Calendar = ({
 }) => {
   return (
     <div
-      className={`flex items-center justify-end w-full h-20 gap-4 pr-16 bg-${theme}/80 flex-nowrap`}
+      className={`flex items-center justify-end w-full h-14 gap-2 pr-8 bg-${theme}/80 flex-nowrap`}
     >
       {!gregorian || !hijri ? (
         <>
           <Shimmer
-            h={60}
-            w={120}
+            h={36}
+            w={80}
           />
-          <span className="text-4xl font-bold">/</span>
+          <span className="text-2xl font-bold">/</span>
           <Shimmer
-            h={60}
-            w={120}
+            h={36}
+            w={80}
           />
         </>
       ) : (
         <>
-          <span className="text-4xl font-bold">{gregorian}</span>
-          <span className="text-4xl font-bold">/</span>
-          <span className="text-4xl font-medium">{hijri}</span>
+          <span className="text-2xl font-bold">{gregorian}</span>
+          <span className="text-2xl font-bold">/</span>
+          <span className="text-2xl font-medium">{hijri}</span>
         </>
       )}
     </div>

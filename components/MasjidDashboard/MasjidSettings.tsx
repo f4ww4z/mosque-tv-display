@@ -315,6 +315,36 @@ const MasjidSettings = ({ id }: { id: string }) => {
                 />
               </div>
 
+              <div className="flex flex-col w-full gap-1">
+                <label
+                  htmlFor="zoomLevel"
+                  className="text-lg font-semibold"
+                >
+                  Tahap Zum Paparan (0.5 - 1.5)&nbsp;
+                  <Asterisk />
+                </label>
+                <p className="text-sm text-gray-400">
+                  Laraskan saiz paparan untuk Android boxes dengan resolusi lebih kecil. Default: 0.85
+                </p>
+
+                <input
+                  id="zoomLevel"
+                  type="number"
+                  step="0.05"
+                  min="0.5"
+                  max="1.5"
+                  placeholder="0.85..."
+                  className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                  value={settings?.zoomLevel ?? 0.85}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      zoomLevel: e.target.valueAsNumber,
+                    })
+                  }
+                />
+              </div>
+
               {/* News text (a JSON array of strings) */}
               <div className="flex flex-col w-full gap-1">
                 <label

@@ -101,6 +101,7 @@ model MasjidSettings {
   timeBetweenSlideshows Int                @default(30)
   newsTexts             String[]
   theme                 String             @default("teal")
+  zoomLevel             Float              @default(0.85)
   worldClocks           MasjidWorldClock[]
   worldClockBackground  String             @default("/clock_background.png")
 }
