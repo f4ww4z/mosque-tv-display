@@ -108,11 +108,14 @@ export async function PATCH(
     async () => {
       const data: Partial<MasjidSettingsUpdateRequest> = await req.json()
 
+      // Extract worldClocks and worldClockBackground as they need special handling
+      const { worldClocks, worldClockBackground, ...updateData } = data
+
       await prisma.masjidSettings.update({
         where: {
           masjidId: params.masjidId,
         },
-        data: data,
+        data: updateData,
       })
 
       return NextResponse.json({ success: true })

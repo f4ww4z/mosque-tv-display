@@ -28,9 +28,9 @@ const MasjidFacilities = ({ id }: { id: string }) => {
   const [items, setItems] = useState<BriefFacilityResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [createNewModalOpen, setCreateNewModalOpen] = useState(false)
-  // const [updateModalOpen, setUpdateModalOpen] = useState(false)
+  const [updateModalOpen, setUpdateModalOpen] = useState(false)
   const [uploadPictureModalOpen, setUploadPictureModalOpen] = useState(false)
-  // const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false)
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] =
     useState<FacilityDetailResponse | null>(null)
 
