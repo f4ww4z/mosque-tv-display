@@ -3,7 +3,13 @@
 import moment from "moment"
 import { useState, useEffect } from "react"
 
-const MyClock = ({ theme, hourFormat = 24 }: { theme: string; hourFormat?: number }) => {
+const MyClock = ({
+  theme,
+  hourFormat = 24,
+}: {
+  theme: string
+  hourFormat?: number
+}) => {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {

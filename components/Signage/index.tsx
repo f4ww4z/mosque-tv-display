@@ -213,7 +213,10 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
         <div className="flex w-full flex-nowrap">
           <div className="flex flex-col w-full max-w-64 h-full mt-6">
-            <MyClock theme={settings.settings.theme} hourFormat={settings.settings.clockHourFormat} />
+            <MyClock
+              theme={settings.settings.theme}
+              hourFormat={settings.settings.clockHourFormat}
+            />
             <div className="flex-1">
               <PrayerTimetable
                 theme={settings.settings.theme}

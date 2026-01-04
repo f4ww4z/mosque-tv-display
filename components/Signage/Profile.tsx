@@ -25,7 +25,7 @@ const Profile = ({
           </>
         ) : (
           <>
-            <p className="text-2xl font-bold leading-tight">
+            <p className="text-4xl font-bold leading-tight">
               <span className={theme !== "gold" && `text-[#FFCD6C]`}>
                 {toSentenceCase(data?.type)}
               </span>
