@@ -58,6 +58,7 @@ export interface MasjidSettingsUpdateRequest {
   newsTexts: string[]
   theme: string
   zoomLevel?: number
+  clockHourFormat?: number
   worldClocks?: MasjidWorldClocksResponse[]
   worldClockBackground?: string
 }

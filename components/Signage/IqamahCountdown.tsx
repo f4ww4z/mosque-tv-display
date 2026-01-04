@@ -86,12 +86,12 @@ const IqamahCountdown = ({
 
   return (
     <div
-      className={`absolute z-10 flex flex-col items-center justify-center px-4 py-2 border-2 border-white rounded-lg bg-${theme}-dark left-[326px] top-[136px]`}
+      className={`absolute z-10 flex flex-col items-center justify-center px-8 py-4 border-4 border-white rounded-lg bg-${theme}-dark left-[326px] top-[136px]`}
     >
-      <p className="text-2xl font-semibold uppercase">Time to Iqamah</p>
-      <div className="flex items-center gap-2 flex-nowrap">
-        <PiClockCountdownFill className="mt-2 text-5xl text-red-light" />
-        <span className="font-sans text-6xl font-bold text-red-light">
+      <p className="text-5xl font-bold uppercase">Time to Iqamah</p>
+      <div className="flex items-center gap-4 flex-nowrap">
+        <PiClockCountdownFill className="mt-2 text-8xl text-red-light" />
+        <span className="font-sans text-9xl font-bold text-red-light">
           {getIqamahTimeLeftFormatted()}
         </span>
       </div>

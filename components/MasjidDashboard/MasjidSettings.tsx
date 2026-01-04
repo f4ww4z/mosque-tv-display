@@ -186,6 +186,45 @@ const MasjidSettings = ({ id }: { id: string }) => {
 
               <div className="flex flex-col w-full gap-1">
                 <label
+                  htmlFor="clockHourFormat"
+                  className="text-lg font-semibold"
+                >
+                  Format Jam&nbsp;
+                  <Asterisk />
+                </label>
+
+                <div className="flex flex-wrap w-full gap-4">
+                  <div className="flex items-center gap-2 flex-nowrap">
+                    <input
+                      type="radio"
+                      className="w-5 h-5"
+                      name="clockHourFormat"
+                      id="24hour"
+                      checked={settings?.clockHourFormat === 24}
+                      onChange={() =>
+                        setSettings({ ...settings, clockHourFormat: 24 })
+                      }
+                    />
+                    <label htmlFor="24hour">24 Jam</label>
+                  </div>
+                  <div className="flex items-center gap-2 flex-nowrap">
+                    <input
+                      type="radio"
+                      className="w-5 h-5"
+                      name="clockHourFormat"
+                      id="12hour"
+                      checked={settings?.clockHourFormat === 12}
+                      onChange={() =>
+                        setSettings({ ...settings, clockHourFormat: 12 })
+                      }
+                    />
+                    <label htmlFor="12hour">12 Jam</label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col w-full gap-1">
+                <label
                   htmlFor="azanSound"
                   className="text-lg font-semibold"
                 >
@@ -229,6 +268,24 @@ const MasjidSettings = ({ id }: { id: string }) => {
                       }
                     />
                     <label htmlFor="azan1">Azan 1</label>
+                  </div>
+                  <div className="flex items-center gap-2 flex-nowrap">
+                    <input
+                      type="radio"
+                      className="w-5 h-5"
+                      name="azanSound"
+                      id="beep1"
+                      checked={
+                        settings?.notifyPrayerTimeSound === "/sounds/beep1.mp3"
+                      }
+                      onChange={() =>
+                        setSettings({
+                          ...settings,
+                          notifyPrayerTimeSound: "/sounds/beep1.mp3",
+                        })
+                      }
+                    />
+                    <label htmlFor="beep1">Beep 1</label>
                   </div>
                 </div>
 
