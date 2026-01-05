@@ -71,9 +71,6 @@ const AzanCountdown = ({
       >
         {/* Title */}
         <div className="text-center">
-          <p className="mb-2 text-6xl font-bold text-white uppercase tracking-wider">
-            Kira Detik Menuju
-          </p>
           <p
             className={`text-8xl font-black text-${theme}-lighter uppercase tracking-wide drop-shadow-lg`}
           >

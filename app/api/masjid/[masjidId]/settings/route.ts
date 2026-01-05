@@ -32,6 +32,7 @@ export async function GET(
           settings: {
             select: {
               language: true,
+              clockHourFormat: true,
               timeUntilIqamah: true,
               notifyPrayerTimeSound: true,
               timeUntilPrayerEnds: true,
@@ -84,6 +85,7 @@ export async function PUT(
         },
         data: {
           language: data.language,
+          clockHourFormat: data.clockHourFormat,
           timeUntilIqamah: data.timeUntilIqamah,
           notifyPrayerTimeSound: data.notifyPrayerTimeSound,
           timeUntilPrayerEnds: data.timeUntilPrayerEnds,

@@ -353,7 +353,7 @@ const MasjidSettings = ({ id }: { id: string }) => {
                   htmlFor="minutesBeforeAzanCountdown"
                   className="text-lg font-semibold"
                 >
-                  Minit Sebelum Azan Untuk Kira Detik (minit)&nbsp;
+                  Minit Sebelum Azan Untuk Countdown (minit)&nbsp;
                   <Asterisk />
                 </label>
 

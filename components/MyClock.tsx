@@ -19,15 +19,24 @@ const MyClock = ({
     return () => clearInterval(interval)
   }, [])
 
-  const formatString = hourFormat === 12 ? "hh:mm A" : "HH:mm"
+  const is12Hour = hourFormat === 12
+  const timeString = moment(time)
+    .utcOffset(8)
+    .format(is12Hour ? "hh:mm" : "HH:mm")
+  const period = is12Hour ? moment(time).utcOffset(8).format("A") : null
 
   return (
     <div
-      className={`flex items-center justify-center px-4 py-2 text-center bg-${theme}-lighter`}
+      className={`flex items-center justify-center px-4 py-2 text-center bg-${theme}-lighter gap-2`}
     >
       <p className="m-0 font-sans font-bold text-amber-100 text-6xl">
-        {moment(time).utcOffset(8).format(formatString)}
+        {timeString}
       </p>
+      {period && (
+        <p className="m-0 font-sans font-bold text-amber-100 text-2xl">
+          {period}
+        </p>
+      )}
     </div>
   )
 }
