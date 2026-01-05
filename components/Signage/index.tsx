@@ -3,6 +3,7 @@
 import LoadingIndicator from "components/LoadingIndicator"
 import fetchJson from "lib/fetchJson"
 import { toSentenceCase } from "lib/string"
+import moment from "moment"
 import { useEffect, useState } from "react"
 import {
   MdFullscreen,
@@ -16,6 +17,7 @@ import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
+import AzanCountdown from "./AzanCountdown"
 import Calendar from "./Calendar"
 import DisplayCarousel from "./DisplayCarousel"
 import NewsBanner from "./NewsBanner"
@@ -59,6 +61,44 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
   const getNewsTexts = () => {
     return settings?.settings?.newsTexts
+  }
+
+  // Get the next prayer time and name
+  const getNextPrayer = () => {
+    if (!prayerTime) {
+      return { time: undefined, name: undefined }
+    }
+
+    const ptLabels = {
+      en: ["Fajr", "Syuruk", "Dhuhr", "Asr", "Maghrib", "Isha"],
+      ms: ["Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"],
+    }
+
+    const now = moment()
+
+    // Find the next prayer (excluding Syuruk)
+    for (let i = 0; i < ptLabels.en.length; i++) {
+      const ptLabelEn = ptLabels.en[i].toLowerCase()
+
+      if (ptLabelEn === "syuruk") {
+        continue
+      }
+
+      const ptTime = moment(prayerTime[ptLabelEn], "HH:mm")
+
+      if (now.isBefore(ptTime)) {
+        return {
+          time: prayerTime[ptLabelEn],
+          name: ptLabels.ms[i],
+        }
+      }
+    }
+
+    // If all prayers have passed, return tomorrow's Fajr
+    return {
+      time: prayerTime.fajr,
+      name: "Subuh",
+    }
   }
 
   const fetchMasjidId = async () => {
@@ -230,7 +270,18 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
             </div>
           </div>
 
-          <div className="w-[83vw] h-full">
+          <div className="w-[83vw] h-full relative">
+            {/* Show countdown if within X minutes before next prayer */}
+            <AzanCountdown
+              theme={settings.settings.theme}
+              minutesBeforeAzan={
+                settings.settings.minutesBeforeAzanCountdown || 10
+              }
+              nextPrayerTime={getNextPrayer().time}
+              nextPrayerName={getNextPrayer().name}
+            />
+
+            {/* Display carousel - will be hidden when countdown is active */}
             <DisplayCarousel
               theme={settings.settings.theme}
               masjidId={displayedMasjidId}

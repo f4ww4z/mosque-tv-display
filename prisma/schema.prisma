@@ -89,22 +89,23 @@ model Masjid {
 }
 
 model MasjidSettings {
-  id                    String             @id @default(cuid())
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
-  masjidId              String             @unique
-  masjid                Masjid             @relation(fields: [masjidId], references: [id])
-  language              String             @default("ms")
-  timeUntilIqamah       Int                @default(10)
-  notifyPrayerTimeSound String             @default("/sounds/azan1.wav")
-  timeUntilPrayerEnds   Int                @default(15)
-  timeBetweenSlideshows Int                @default(30)
-  newsTexts             String[]
-  theme                 String             @default("teal")
-  zoomLevel             Float              @default(0.85)
-  clockHourFormat       Int                @default(24)
-  worldClocks           MasjidWorldClock[]
-  worldClockBackground  String             @default("/clock_background.png")
+  id                         String             @id @default(cuid())
+  createdAt                  DateTime           @default(now())
+  updatedAt                  DateTime           @updatedAt
+  masjidId                   String             @unique
+  masjid                     Masjid             @relation(fields: [masjidId], references: [id])
+  language                   String             @default("ms")
+  timeUntilIqamah            Int                @default(10)
+  notifyPrayerTimeSound      String             @default("/sounds/azan1.wav")
+  timeUntilPrayerEnds        Int                @default(15)
+  timeBetweenSlideshows      Int                @default(30)
+  minutesBeforeAzanCountdown Int                @default(10)
+  newsTexts                  String[]
+  theme                      String             @default("teal")
+  zoomLevel                  Float              @default(0.85)
+  clockHourFormat            Int                @default(24)
+  worldClocks                MasjidWorldClock[]
+  worldClockBackground       String             @default("/clock_background.png")
 }
 
 model MasjidWorldClock {

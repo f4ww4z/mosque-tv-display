@@ -276,12 +276,12 @@ const MasjidSettings = ({ id }: { id: string }) => {
                       name="azanSound"
                       id="beep1"
                       checked={
-                        settings?.notifyPrayerTimeSound === "/sounds/beep1.mp3"
+                        settings?.notifyPrayerTimeSound === "/sounds/beep1.wav"
                       }
                       onChange={() =>
                         setSettings({
                           ...settings,
-                          notifyPrayerTimeSound: "/sounds/beep1.mp3",
+                          notifyPrayerTimeSound: "/sounds/beep1.wav",
                         })
                       }
                     />
@@ -343,6 +343,30 @@ const MasjidSettings = ({ id }: { id: string }) => {
                     setSettings({
                       ...settings,
                       timeUntilPrayerEnds: e.target.valueAsNumber,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="flex flex-col w-full gap-1">
+                <label
+                  htmlFor="minutesBeforeAzanCountdown"
+                  className="text-lg font-semibold"
+                >
+                  Minit Sebelum Azan Untuk Kira Detik (minit)&nbsp;
+                  <Asterisk />
+                </label>
+
+                <input
+                  id="minutesBeforeAzanCountdown"
+                  type="number"
+                  placeholder="10..."
+                  className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                  value={settings?.minutesBeforeAzanCountdown}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      minutesBeforeAzanCountdown: e.target.valueAsNumber,
                     })
                   }
                 />

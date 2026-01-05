@@ -14,6 +14,9 @@ for (const theme of masjidSignageThemes) {
       variant === "DEFAULT" ? `to-${theme}` : `to-${theme}-${variant}`
     )
     safelistClasses.push(
+      variant === "DEFAULT" ? `via-${theme}` : `via-${theme}-${variant}`
+    )
+    safelistClasses.push(
       variant === "DEFAULT" ? `bg-${theme}` : `bg-${theme}-${variant}`
     )
     safelistClasses.push(
@@ -24,6 +27,9 @@ for (const theme of masjidSignageThemes) {
     )
     safelistClasses.push(
       variant === "DEFAULT" ? `border-${theme}` : `border-${theme}-${variant}`
+    )
+    safelistClasses.push(
+      variant === "DEFAULT" ? `text-${theme}` : `text-${theme}-${variant}`
     )
   }
 }
