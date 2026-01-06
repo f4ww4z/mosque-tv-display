@@ -14,7 +14,7 @@ const Profile = ({
 }) => {
   return (
     <div
-      className={`z-10 drop-shadow-xl absolute flex w-full max-w-xl items-center gap-2 pl-3 pr-6 py-2 rounded-br-[50px] bg-gradient-to-r from-${theme}-light to-${theme}-lighter flex-nowrap`}
+      className={`z-10 drop-shadow-xl absolute flex w-full max-w-2xl items-center gap-2 pl-3 pr-6 py-2 rounded-br-[50px] bg-gradient-to-r from-${theme}-light to-${theme}-lighter flex-nowrap`}
     >
       <FaMosque className="text-white text-4xl w-24" />
       <div className="flex flex-col justify-start w-full gap-1">
@@ -25,13 +25,13 @@ const Profile = ({
           </>
         ) : (
           <>
-            <p className="text-4xl font-bold leading-tight">
+            <p className="text-6xl font-bold leading-tight">
               <span className={theme !== "gold" && `text-[#FFCD6C]`}>
                 {toSentenceCase(data?.type)}
               </span>
               &nbsp;{data?.name}
             </p>
-            <p className="text-xs font-normal leading-tight">{data?.address}</p>
+            <p className="text-sm font-normal leading-tight">{data?.address}</p>
           </>
         )}
       </div>
