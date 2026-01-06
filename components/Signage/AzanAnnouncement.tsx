@@ -2,7 +2,7 @@
 
 import moment from "moment"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const AzanAnnouncement = ({
   theme,
@@ -16,6 +16,12 @@ const AzanAnnouncement = ({
   onComplete: () => void
 }) => {
   const [time, setTime] = useState(new Date())
+  const onCompleteRef = useRef(onComplete)
+
+  // Update ref when onComplete changes
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,11 +33,11 @@ const AzanAnnouncement = ({
   useEffect(() => {
     // Auto-complete after duration
     const timer = setTimeout(() => {
-      onComplete()
+      onCompleteRef.current()
     }, duration * 1000)
 
     return () => clearTimeout(timer)
-  }, [duration, onComplete])
+  }, [duration]) // Only depend on duration, not onComplete
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center w-screen h-screen text-gray-300 bg-black">

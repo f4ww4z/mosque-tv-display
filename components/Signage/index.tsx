@@ -346,6 +346,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
             {/* Show Iqamah countdown after Azan announcement completes */}
             {!showAzanAnnouncement && (
               <IqamahCountdown
+                key={`iqamah-${getCurrentPrayer().time}-${showAzanAnnouncement}`}
                 theme={settings.settings.theme}
                 timeUntilIqamah={settings.settings.timeUntilIqamah}
                 timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
