@@ -100,6 +100,7 @@ model MasjidSettings {
   timeUntilPrayerEnds        Int                @default(15)
   timeBetweenSlideshows      Int                @default(30)
   minutesBeforeAzanCountdown Int                @default(10)
+  azanAnnouncementDuration   Int                @default(5)
   newsTexts                  String[]
   theme                      String             @default("teal")
   zoomLevel                  Float              @default(0.85)

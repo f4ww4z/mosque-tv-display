@@ -374,6 +374,30 @@ const MasjidSettings = ({ id }: { id: string }) => {
 
               <div className="flex flex-col w-full gap-1">
                 <label
+                  htmlFor="azanAnnouncementDuration"
+                  className="text-lg font-semibold"
+                >
+                  Tempoh Paparan Pengumuman Azan (saat)&nbsp;
+                  <Asterisk />
+                </label>
+
+                <input
+                  id="azanAnnouncementDuration"
+                  type="number"
+                  placeholder="5..."
+                  className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                  value={settings?.azanAnnouncementDuration}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      azanAnnouncementDuration: e.target.valueAsNumber,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="flex flex-col w-full gap-1">
+                <label
                   htmlFor="timeBetweenSlideshows"
                   className="text-lg font-semibold"
                 >

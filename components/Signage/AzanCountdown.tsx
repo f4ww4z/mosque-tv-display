@@ -9,14 +9,17 @@ const AzanCountdown = ({
   minutesBeforeAzan,
   nextPrayerTime,
   nextPrayerName,
+  onAzanTimeReached,
 }: {
   theme: string
   minutesBeforeAzan: number
   nextPrayerTime?: string // in "HH:mm" format
   nextPrayerName?: string
+  onAzanTimeReached?: (prayerName: string) => void
 }) => {
   const [secondsLeft, setSecondsLeft] = useState<number>(-1)
   const [isCountdownActive, setIsCountdownActive] = useState<boolean>(false)
+  const [hasTriggeredAzan, setHasTriggeredAzan] = useState<boolean>(false)
 
   const getTimeLeftFormatted = () => {
     if (secondsLeft <= 0) {
@@ -47,10 +50,26 @@ const AzanCountdown = ({
         secondsUntilPrayer > 0 && secondsUntilPrayer <= minutesBeforeAzan * 60
 
       setIsCountdownActive(shouldShowCountdown)
+
+      // Trigger azan announcement when countdown reaches 0
+      if (
+        secondsUntilPrayer <= 0 &&
+        !hasTriggeredAzan &&
+        onAzanTimeReached &&
+        nextPrayerName
+      ) {
+        setHasTriggeredAzan(true)
+        onAzanTimeReached(nextPrayerName)
+      }
+
+      // Reset trigger for next prayer
+      if (secondsUntilPrayer > minutesBeforeAzan * 60) {
+        setHasTriggeredAzan(false)
+      }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [nextPrayerTime, minutesBeforeAzan])
+  }, [nextPrayerTime, minutesBeforeAzan, hasTriggeredAzan, onAzanTimeReached, nextPrayerName])
 
   if (!isCountdownActive || !nextPrayerName) {
     return null

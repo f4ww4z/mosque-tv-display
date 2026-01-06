@@ -56,6 +56,7 @@ export interface MasjidSettingsUpdateRequest {
   timeUntilPrayerEnds: number
   timeBetweenSlideshows: number
   minutesBeforeAzanCountdown: number
+  azanAnnouncementDuration: number
   newsTexts: string[]
   theme: string
   zoomLevel?: number

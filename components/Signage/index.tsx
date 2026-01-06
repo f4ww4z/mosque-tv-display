@@ -17,6 +17,7 @@ import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
+import AzanAnnouncement from "./AzanAnnouncement"
 import AzanCountdown from "./AzanCountdown"
 import Calendar from "./Calendar"
 import DisplayCarousel from "./DisplayCarousel"
@@ -31,6 +32,9 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   const [settings, setSettings] = useState<MasjidSettingsResponse>()
   const [prayerTime, setPrayerTime] = useState<PrayerTimeResponse>()
   const [doNotDisturb, setDoNotDisturb] = useState<boolean>(false)
+  const [showAzanAnnouncement, setShowAzanAnnouncement] =
+    useState<boolean>(false)
+  const [azanPrayerName, setAzanPrayerName] = useState<string>("")
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([])
   const [totalCarouselDuration, setTotalCarouselDuration] = useState<number>(0) // seconds
@@ -310,25 +314,46 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
           </div>
 
           <div className="w-[83vw] h-full relative">
-            {/* Show countdown if within X minutes before next prayer */}
-            <AzanCountdown
-              theme={settings.settings.theme}
-              minutesBeforeAzan={
-                settings.settings.minutesBeforeAzanCountdown || 10
-              }
-              nextPrayerTime={getNextPrayer().time}
-              nextPrayerName={getNextPrayer().name}
-            />
+            {/* Show Azan Announcement immediately when prayer time arrives */}
+            {showAzanAnnouncement && azanPrayerName && (
+              <AzanAnnouncement
+                theme={settings.settings.theme}
+                prayerName={azanPrayerName}
+                duration={settings.settings.azanAnnouncementDuration || 5}
+                onComplete={() => {
+                  setShowAzanAnnouncement(false)
+                  setAzanPrayerName("")
+                }}
+              />
+            )}
 
-            {/* Show Iqamah countdown after Azan */}
-            <IqamahCountdown
-              theme={settings.settings.theme}
-              timeUntilIqamah={settings.settings.timeUntilIqamah}
-              timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
-              prayerTime={getCurrentPrayer().time}
-              prayerName={getCurrentPrayer().name}
-              togglePrayerMode={(isOn: boolean) => setDoNotDisturb(isOn)}
-            />
+            {/* Show countdown if within X minutes before next prayer */}
+            {!showAzanAnnouncement && (
+              <AzanCountdown
+                theme={settings.settings.theme}
+                minutesBeforeAzan={
+                  settings.settings.minutesBeforeAzanCountdown || 10
+                }
+                nextPrayerTime={getNextPrayer().time}
+                nextPrayerName={getNextPrayer().name}
+                onAzanTimeReached={(prayerName: string) => {
+                  setAzanPrayerName(prayerName)
+                  setShowAzanAnnouncement(true)
+                }}
+              />
+            )}
+
+            {/* Show Iqamah countdown after Azan announcement completes */}
+            {!showAzanAnnouncement && (
+              <IqamahCountdown
+                theme={settings.settings.theme}
+                timeUntilIqamah={settings.settings.timeUntilIqamah}
+                timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
+                prayerTime={getCurrentPrayer().time}
+                prayerName={getCurrentPrayer().name}
+                togglePrayerMode={(isOn: boolean) => setDoNotDisturb(isOn)}
+              />
+            )}
 
             {/* Display carousel - will be hidden when countdown is active */}
             <DisplayCarousel
