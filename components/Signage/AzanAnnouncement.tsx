@@ -1,5 +1,7 @@
 "use client"
 
+import moment from "moment"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 const AzanAnnouncement = ({
@@ -13,74 +15,36 @@ const AzanAnnouncement = ({
   duration: number // in seconds
   onComplete: () => void
 }) => {
-  const [secondsLeft, setSecondsLeft] = useState<number>(duration)
-  const [isFlashing, setIsFlashing] = useState<boolean>(true)
+  const [time, setTime] = useState(new Date())
 
   useEffect(() => {
-    setSecondsLeft(duration)
-  }, [duration])
-
-  useEffect(() => {
-    // Flash animation interval (500ms on/off)
-    const flashInterval = setInterval(() => {
-      setIsFlashing((prev) => !prev)
-    }, 500)
-
-    // Countdown interval
-    const countdownInterval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval)
-          clearInterval(flashInterval)
-          onComplete()
-          return 0
-        }
-        return prev - 1
-      })
+    const interval = setInterval(() => {
+      setTime(new Date())
     }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
-    return () => {
-      clearInterval(flashInterval)
-      clearInterval(countdownInterval)
-    }
+  useEffect(() => {
+    // Auto-complete after duration
+    const timer = setTimeout(() => {
+      onComplete()
+    }, duration * 1000)
+
+    return () => clearTimeout(timer)
   }, [duration, onComplete])
 
   return (
-    <div
-      className={`absolute inset-0 z-20 w-full h-full flex flex-col items-center justify-center transition-all duration-500 ${
-        isFlashing
-          ? `bg-gradient-to-br from-${theme}-darker via-${theme}-dark to-${theme}-darker`
-          : "bg-white"
-      }`}
-    >
-      <div className="flex flex-col items-center justify-center gap-12 p-16 animate-pulse">
-        {/* AZAN Text */}
-        <div
-          className={`text-[12rem] font-black uppercase tracking-wider drop-shadow-2xl transition-colors duration-500 ${
-            isFlashing ? "text-white" : `text-${theme}-darker`
-          }`}
-        >
-          AZAN
-        </div>
-
-        {/* Prayer Time Message */}
-        <div
-          className={`text-7xl font-bold text-center transition-colors duration-500 ${
-            isFlashing ? "text-white" : `text-${theme}-darker`
-          }`}
-        >
-          Sekarang Telah Masuk Waktu Solat
-        </div>
-
-        {/* Prayer Name */}
-        <div
-          className={`text-[10rem] font-black uppercase tracking-wide drop-shadow-2xl transition-colors duration-500 ${
-            isFlashing ? `text-${theme}-lighter` : `text-${theme}-dark`
-          }`}
-        >
-          {prayerName}
-        </div>
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center w-screen h-screen text-gray-300 bg-black">
+      <p className="absolute w-full text-2xl font-semibold text-center bottom-14">
+        {moment(time).format("HH:mm")}
+      </p>
+      <Image
+        src="/mode azan.jpg"
+        alt="Azan Announcement"
+        width={1920}
+        height={1080}
+        className="w-auto h-full"
+      />
     </div>
   )
 }

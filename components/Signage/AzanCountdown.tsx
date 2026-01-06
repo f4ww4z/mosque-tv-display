@@ -69,7 +69,13 @@ const AzanCountdown = ({
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [nextPrayerTime, minutesBeforeAzan, hasTriggeredAzan, onAzanTimeReached, nextPrayerName])
+  }, [
+    nextPrayerTime,
+    minutesBeforeAzan,
+    hasTriggeredAzan,
+    onAzanTimeReached,
+    nextPrayerName,
+  ])
 
   if (!isCountdownActive || !nextPrayerName) {
     return null

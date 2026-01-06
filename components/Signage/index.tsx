@@ -283,6 +283,19 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       >
         {doNotDisturb && <DoNotDisturbScreen />}
 
+        {/* Show Azan Announcement at root level to cover entire screen */}
+        {showAzanAnnouncement && azanPrayerName && (
+          <AzanAnnouncement
+            theme={settings.settings.theme}
+            prayerName={azanPrayerName}
+            duration={settings.settings.azanAnnouncementDuration || 5}
+            onComplete={() => {
+              setShowAzanAnnouncement(false)
+              setAzanPrayerName("")
+            }}
+          />
+        )}
+
         <Profile
           theme={settings.settings.theme}
           data={profile}
@@ -314,19 +327,6 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
           </div>
 
           <div className="w-[83vw] h-full relative">
-            {/* Show Azan Announcement immediately when prayer time arrives */}
-            {showAzanAnnouncement && azanPrayerName && (
-              <AzanAnnouncement
-                theme={settings.settings.theme}
-                prayerName={azanPrayerName}
-                duration={settings.settings.azanAnnouncementDuration || 5}
-                onComplete={() => {
-                  setShowAzanAnnouncement(false)
-                  setAzanPrayerName("")
-                }}
-              />
-            )}
-
             {/* Show countdown if within X minutes before next prayer */}
             {!showAzanAnnouncement && (
               <AzanCountdown
