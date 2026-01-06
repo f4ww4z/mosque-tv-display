@@ -80,10 +80,6 @@ const AzanCountdown = ({
 
         {/* Countdown Display */}
         <div className="flex items-center justify-center gap-8 mt-8 flex-nowrap">
-          <PiClockCountdownFill
-            className={`text-[12rem] text-${theme}-lighter animate-pulse`}
-          />
-
           <div className="flex items-center gap-6">
             {/* Minutes */}
             <div className="flex flex-col items-center">
@@ -122,13 +118,6 @@ const AzanCountdown = ({
               </p>
             </div>
           </div>
-        </div>
-
-        {/* Additional Message */}
-        <div className="mt-8 text-center">
-          <p className="text-5xl font-semibold text-white/90 tracking-wide">
-            Bersiap sedia untuk menunaikan solat
-          </p>
         </div>
       </div>
     </div>

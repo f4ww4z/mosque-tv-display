@@ -4,7 +4,6 @@ import Shimmer from "components/Shimmer"
 import moment from "moment"
 import { useEffect, useRef, useState } from "react"
 import { PrayerTimeResponse } from "types/prayer"
-import IqamahCountdown from "./IqamahCountdown"
 
 interface PrayerTimeCardProps {
   theme: string
@@ -151,42 +150,28 @@ const PrayerTimetable = ({
   }
 
   return (
-    <>
-      <div className="flex flex-col text-center">
-        {ptLabels[lang].map((ptLabel: string, index: number) => {
-          // A prayer is the current one if its index matches the current prayer index
-          const isCurrentPrayer = index === getCurrentPrayerIndex()
+    <div className="flex flex-col text-center">
+      {ptLabels[lang].map((ptLabel: string, index: number) => {
+        // A prayer is the current one if its index matches the current prayer index
+        const isCurrentPrayer = index === getCurrentPrayerIndex()
 
-          const ptLabelEn = ptLabels.en[index]
+        const ptLabelEn = ptLabels.en[index]
 
-          // console.log("should flash: ", shouldFlash)
+        // console.log("should flash: ", shouldFlash)
 
-          return (
-            <PrayerTimeCard
-              key={index}
-              theme={theme}
-              ptLabel={ptLabel}
-              time={prayerTime?.[ptLabelEn.toLowerCase()]}
-              isCurrentPrayer={isCurrentPrayer}
-              shouldFlash={shouldFlash}
-              loading={!prayerTime}
-            />
-          )
-        })}
-      </div>
-
-      {ptLabels.en[getCurrentPrayerIndex()].toLowerCase() !== "syuruk" && (
-        <IqamahCountdown
-          theme={theme}
-          timeUntilIqamah={timeUntilIqamah}
-          timeUntilPrayerEnds={timeUntilPrayerEnds}
-          prayerTime={
-            prayerTime?.[ptLabels.en[getCurrentPrayerIndex()].toLowerCase()]
-          }
-          togglePrayerMode={(on) => togglePrayerMode(on)}
-        />
-      )}
-    </>
+        return (
+          <PrayerTimeCard
+            key={index}
+            theme={theme}
+            ptLabel={ptLabel}
+            time={prayerTime?.[ptLabelEn.toLowerCase()]}
+            isCurrentPrayer={isCurrentPrayer}
+            shouldFlash={shouldFlash}
+            loading={!prayerTime}
+          />
+        )
+      })}
+    </div>
   )
 }
 

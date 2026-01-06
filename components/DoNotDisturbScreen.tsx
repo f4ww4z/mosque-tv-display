@@ -21,7 +21,7 @@ const DoNotDisturbScreen = ({ onClick }: { onClick?: () => void }) => {
         {moment(time).format("HH:mm")}
       </p>
       <Image
-        src="/mode solat.jpg"
+        src="/mode solat.png"
         alt="Do Not Disturb"
         width={1920}
         height={1080}

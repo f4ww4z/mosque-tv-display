@@ -1,18 +1,21 @@
+"use client"
+
 import moment from "moment"
 import { useEffect, useRef, useState } from "react"
-import { PiClockCountdownFill } from "react-icons/pi"
 
 const IqamahCountdown = ({
   theme,
   timeUntilIqamah,
   timeUntilPrayerEnds,
   prayerTime,
+  prayerName,
   togglePrayerMode,
 }: {
   theme: string
   timeUntilIqamah: number
   timeUntilPrayerEnds: number
   prayerTime?: string // in "HH:mm" format
+  prayerName?: string
   togglePrayerMode: (on: boolean) => void
 }) => {
   const [secondsLeftUntilIqamah, setSecondsLeftUntilIqamah] =
@@ -28,7 +31,7 @@ const IqamahCountdown = ({
     const minutes = Math.floor(secondsLeftUntilIqamah / 60)
     const seconds = secondsLeftUntilIqamah % 60
 
-    return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+    return { minutes, seconds }
   }
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -80,20 +83,73 @@ const IqamahCountdown = ({
     return null
   }
 
-  if (secondsLeftUntilIqamah <= 0) {
+  if (secondsLeftUntilIqamah <= 0 || !prayerName) {
+    return null
+  }
+
+  const timeLeft = getIqamahTimeLeftFormatted()
+
+  if (!timeLeft) {
     return null
   }
 
   return (
     <div
-      className={`absolute z-10 flex flex-col items-center justify-center px-8 py-4 border-4 border-white rounded-lg bg-${theme}-dark left-[100px] top-[50px]`}
+      className={`absolute inset-0 z-10 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-${theme}-darker via-${theme}-dark to-${theme}-darker`}
     >
-      <p className="text-5xl font-bold uppercase">Time to Iqamah</p>
-      <div className="flex items-center gap-4 flex-nowrap">
-        <PiClockCountdownFill className="mt-2 text-8xl text-red-light" />
-        <span className="font-sans text-9xl font-bold text-red-light">
-          {getIqamahTimeLeftFormatted()}
-        </span>
+      <div
+        className={`flex flex-col items-center justify-center gap-8 p-12 border-8 border-white rounded-3xl shadow-2xl bg-${theme}-dark/50 backdrop-blur-sm`}
+      >
+        {/* Title */}
+        <div className="text-center">
+          <p
+            className={`text-8xl font-black text-${theme}-lighter uppercase tracking-wide drop-shadow-lg`}
+          >
+            IQAMAH {prayerName.toUpperCase()}
+          </p>
+        </div>
+
+        {/* Countdown Display */}
+        <div className="flex items-center justify-center gap-8 mt-8 flex-nowrap">
+          <div className="flex items-center gap-6">
+            {/* Minutes */}
+            <div className="flex flex-col items-center">
+              <div
+                className={`bg-white rounded-2xl shadow-2xl px-12 py-8 min-w-[200px] border-4 border-${theme}-lighter`}
+              >
+                <span
+                  className={`font-mono text-[10rem] font-black leading-none text-${theme}-darker`}
+                >
+                  {String(timeLeft.minutes).padStart(2, "0")}
+                </span>
+              </div>
+              <p className="mt-4 text-5xl font-bold text-white uppercase tracking-wider">
+                Minit
+              </p>
+            </div>
+
+            {/* Separator */}
+            <span className="text-[10rem] font-black text-white leading-none mb-16">
+              :
+            </span>
+
+            {/* Seconds */}
+            <div className="flex flex-col items-center">
+              <div
+                className={`bg-white rounded-2xl shadow-2xl px-12 py-8 min-w-[200px] border-4 border-${theme}-lighter`}
+              >
+                <span
+                  className={`font-mono text-[10rem] font-black leading-none text-${theme}-darker`}
+                >
+                  {String(timeLeft.seconds).padStart(2, "0")}
+                </span>
+              </div>
+              <p className="mt-4 text-5xl font-bold text-white uppercase tracking-wider">
+                Saat
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

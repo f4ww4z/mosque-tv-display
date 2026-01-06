@@ -20,6 +20,7 @@ import MyClock from "../MyClock"
 import AzanCountdown from "./AzanCountdown"
 import Calendar from "./Calendar"
 import DisplayCarousel from "./DisplayCarousel"
+import IqamahCountdown from "./IqamahCountdown"
 import NewsBanner from "./NewsBanner"
 import PrayerTimetable from "./PrayerTimetable"
 import Profile from "./Profile"
@@ -98,6 +99,44 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     return {
       time: prayerTime.fajr,
       name: "Subuh",
+    }
+  }
+
+  // Get the current prayer that has started (for Iqamah countdown)
+  const getCurrentPrayer = () => {
+    if (!prayerTime) {
+      return { time: undefined, name: undefined }
+    }
+
+    const ptLabels = {
+      en: ["Fajr", "Syuruk", "Dhuhr", "Asr", "Maghrib", "Isha"],
+      ms: ["Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"],
+    }
+
+    const now = moment()
+
+    // Find the latest prayer that has passed (excluding Syuruk)
+    for (let i = ptLabels.en.length - 1; i >= 0; i--) {
+      const ptLabelEn = ptLabels.en[i].toLowerCase()
+
+      if (ptLabelEn === "syuruk") {
+        continue
+      }
+
+      const ptTime = moment(prayerTime[ptLabelEn], "HH:mm")
+
+      if (now.isAfter(ptTime)) {
+        return {
+          time: prayerTime[ptLabelEn],
+          name: ptLabels.ms[i],
+        }
+      }
+    }
+
+    // If no prayer has passed today, return last prayer (Isha)
+    return {
+      time: prayerTime.isha,
+      name: "Isyak",
     }
   }
 
@@ -279,6 +318,16 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
               }
               nextPrayerTime={getNextPrayer().time}
               nextPrayerName={getNextPrayer().name}
+            />
+
+            {/* Show Iqamah countdown after Azan */}
+            <IqamahCountdown
+              theme={settings.settings.theme}
+              timeUntilIqamah={settings.settings.timeUntilIqamah}
+              timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
+              prayerTime={getCurrentPrayer().time}
+              prayerName={getCurrentPrayer().name}
+              togglePrayerMode={(isOn: boolean) => setDoNotDisturb(isOn)}
             />
 
             {/* Display carousel - will be hidden when countdown is active */}
