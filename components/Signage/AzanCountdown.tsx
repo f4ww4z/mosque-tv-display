@@ -52,11 +52,14 @@ const AzanCountdown = ({
       setIsCountdownActive(shouldShowCountdown)
 
       // Trigger azan announcement when countdown reaches 0
+      // Only trigger if we have valid prayer data (positive secondsUntilPrayer before it reaches 0)
       if (
         secondsUntilPrayer <= 0 &&
+        secondsUntilPrayer > -60 && // Within 1 minute after azan time to prevent false triggers
         !hasTriggeredAzan &&
         onAzanTimeReached &&
-        nextPrayerName
+        nextPrayerName &&
+        nextPrayerTime // Ensure we have valid prayer time data
       ) {
         setHasTriggeredAzan(true)
         onAzanTimeReached(nextPrayerName)

@@ -273,6 +273,19 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     <div
       className={`relative flex flex-col justify-start w-full h-screen bg-${settings.settings.theme}-darker overflow-hidden`}
     >
+      {/* Show Azan Announcement outside zoom container to cover entire screen */}
+      {showAzanAnnouncement && azanPrayerName && prayerTime && (
+        <AzanAnnouncement
+          theme={settings.settings.theme}
+          prayerName={azanPrayerName}
+          duration={settings.settings.azanAnnouncementDuration || 5}
+          onComplete={() => {
+            setShowAzanAnnouncement(false)
+            setAzanPrayerName("")
+          }}
+        />
+      )}
+
       <div
         style={{
           transform: `scale(${zoomLevel})`,
@@ -282,19 +295,6 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
         }}
       >
         {doNotDisturb && <DoNotDisturbScreen />}
-
-        {/* Show Azan Announcement at root level to cover entire screen */}
-        {showAzanAnnouncement && azanPrayerName && (
-          <AzanAnnouncement
-            theme={settings.settings.theme}
-            prayerName={azanPrayerName}
-            duration={settings.settings.azanAnnouncementDuration || 5}
-            onComplete={() => {
-              setShowAzanAnnouncement(false)
-              setAzanPrayerName("")
-            }}
-          />
-        )}
 
         <Profile
           theme={settings.settings.theme}
@@ -328,7 +328,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
           <div className="w-[83vw] h-full relative">
             {/* Show countdown if within X minutes before next prayer */}
-            {!showAzanAnnouncement && (
+            {!showAzanAnnouncement && prayerTime && (
               <AzanCountdown
                 theme={settings.settings.theme}
                 minutesBeforeAzan={
@@ -337,8 +337,11 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
                 nextPrayerTime={getNextPrayer().time}
                 nextPrayerName={getNextPrayer().name}
                 onAzanTimeReached={(prayerName: string) => {
-                  setAzanPrayerName(prayerName)
-                  setShowAzanAnnouncement(true)
+                  // Only show azan if we have valid prayer data
+                  if (prayerTime && getNextPrayer().time) {
+                    setAzanPrayerName(prayerName)
+                    setShowAzanAnnouncement(true)
+                  }
                 }}
               />
             )}

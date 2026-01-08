@@ -26,7 +26,9 @@ const Calendar = ({
         </>
       ) : (
         <>
-          <span className="text-3xl font-bold leading-tight">{gregorian}</span>
+          <span className="text-3xl font-bold leading-tight text-[#FFCD6C]">
+            {gregorian}
+          </span>
           <span className="text-3xl font-medium leading-tight">{hijri}</span>
         </>
       )}
