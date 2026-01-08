@@ -8,7 +8,7 @@ const NewsBanner = ({ news }: { news?: string[] }) => (
         {news.map((item, index) => (
           <p
             key={index}
-            className="px-4 text-xl text-white"
+            className="px-4 text-2xl text-white"
           >
             {item}
             <span className="ml-8">|</span>
