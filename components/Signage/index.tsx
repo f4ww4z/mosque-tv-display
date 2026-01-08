@@ -2,6 +2,16 @@
 
 import LoadingIndicator from "components/LoadingIndicator"
 import fetchJson from "lib/fetchJson"
+import {
+  getCarouselFromStorage,
+  getPrayerTimeFromStorage,
+  getProfileFromStorage,
+  getSettingsFromStorage,
+  saveCarouselToStorage,
+  savePrayerTimeToStorage,
+  saveProfileToStorage,
+  saveSettingsToStorage,
+} from "lib/localStorage"
 import { toSentenceCase } from "lib/string"
 import moment from "moment"
 import { useEffect, useState } from "react"
@@ -10,6 +20,7 @@ import {
   MdFullscreenExit,
   MdZoomIn,
   MdZoomOut,
+  MdWifiOff,
 } from "react-icons/md"
 import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
@@ -38,6 +49,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([])
   const [totalCarouselDuration, setTotalCarouselDuration] = useState<number>(0) // seconds
+  const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false)
   const [zoomLevel, setZoomLevel] = useState<number>(0.85)
 
   const handleZoomIn = async () => {
@@ -165,42 +177,118 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
   const fetchProfile = async () => {
     try {
+      // Try to load from cache first
+      const cachedProfile = getProfileFromStorage(displayedMasjidId)
+      if (cachedProfile) {
+        setProfile(cachedProfile)
+        document.title = `Paparan ${toSentenceCase(cachedProfile.type)} ${cachedProfile.name} | PTM`
+      }
+
+      // Fetch fresh data
       const data = await fetchJson<MasjidProfileResponse>(
         `/api/masjid/${displayedMasjidId}/profile`
       )
 
       setProfile(data)
+      saveProfileToStorage(data, displayedMasjidId)
+      setIsOfflineMode(false) // Successfully fetched, not offline
 
       document.title = `Paparan ${toSentenceCase(data.type)} ${data.name} | PTM`
     } catch (error) {
-      toast.error(
-        error.message ?? "Error berlaku semasa mengakses profil masjid."
-      )
+      // If API fails and we have cached data, use it silently
+      const cachedProfile = getProfileFromStorage(displayedMasjidId)
+      if (cachedProfile && !profile) {
+        setProfile(cachedProfile)
+        setIsOfflineMode(true) // Using cache, offline mode
+        document.title = `Paparan ${toSentenceCase(cachedProfile.type)} ${cachedProfile.name} | PTM`
+        console.warn("Using cached profile due to network error")
+      } else if (!cachedProfile) {
+        toast.error(
+          error.message ?? "Error berlaku semasa mengakses profil masjid."
+        )
+      }
     }
   }
 
   const fetchSettings = async () => {
     try {
+      // Try to load from cache first
+      const cachedSettings = getSettingsFromStorage(displayedMasjidId)
+      if (cachedSettings) {
+        setSettings(cachedSettings)
+        setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
+
+        // Also try to load cached prayer time
+        const cachedPrayerTime = getPrayerTimeFromStorage(
+          cachedSettings.city,
+          cachedSettings.countryCode
+        )
+        if (cachedPrayerTime) {
+          setPrayerTime(cachedPrayerTime)
+        }
+      }
+
+      // Fetch fresh settings
       const settings = await fetchJson<MasjidSettingsResponse>(
         `/api/masjid/${displayedMasjidId}/settings`
       )
 
       setSettings(settings)
+      saveSettingsToStorage(settings, displayedMasjidId)
       setZoomLevel(settings.settings?.zoomLevel ?? 0.85)
 
+      // Fetch fresh prayer time
       const prayerTime = await fetchJson<PrayerTimeResponse>(
         `/api/prayer?city=${settings.city}&countryCode=${settings.countryCode}`
       )
 
       setPrayerTime(prayerTime)
+      savePrayerTimeToStorage(prayerTime, settings.city, settings.countryCode)
+      setIsOfflineMode(false) // Successfully fetched, not offline
     } catch (error) {
-      // console.log(error)
-      toast.error(error.message ?? "An error occurred while fetching settings.")
+      // If API fails and we have cached data, use it silently
+      const cachedSettings = getSettingsFromStorage(displayedMasjidId)
+      if (cachedSettings && !settings) {
+        setSettings(cachedSettings)
+        setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
+        setIsOfflineMode(true) // Using cache, offline mode
+
+        // Try to load cached prayer time if we don't have it yet
+        if (!prayerTime) {
+          const cachedPrayerTime = getPrayerTimeFromStorage(
+            cachedSettings.city,
+            cachedSettings.countryCode
+          )
+          if (cachedPrayerTime) {
+            setPrayerTime(cachedPrayerTime)
+          }
+        }
+
+        console.warn(
+          "Using cached settings and prayer time due to network error"
+        )
+      } else if (!cachedSettings) {
+        toast.error(
+          error.message ?? "An error occurred while fetching settings."
+        )
+      }
     }
   }
 
   const fetchCarousels = async () => {
     try {
+      // Try to load from cache first
+      const cachedCarousel = getCarouselFromStorage(displayedMasjidId)
+      if (cachedCarousel) {
+        setCarouselItems(cachedCarousel)
+        if (settings?.settings && cachedCarousel.length > 0) {
+          setTotalCarouselDuration(
+            cachedCarousel.length * settings.settings.timeBetweenSlideshows
+          )
+        }
+      }
+
+      // Fetch fresh data
       let data = await fetchJson<CarouselItem[]>(
         `/api/masjid/${displayedMasjidId}/carousel`
       )
@@ -212,6 +300,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       data = data.filter((item) => !item.hidden)
 
       setCarouselItems(data)
+      saveCarouselToStorage(data, displayedMasjidId)
 
       if (settings?.settings && data.length > 0) {
         setTotalCarouselDuration(
@@ -219,15 +308,60 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
         )
       }
     } catch (error) {
-      toast.error(
-        error.message ?? "An error occurred while fetching carousels."
-      )
+      // If API fails and we have cached data, use it silently
+      const cachedCarousel = getCarouselFromStorage(displayedMasjidId)
+      if (cachedCarousel && carouselItems.length === 0) {
+        setCarouselItems(cachedCarousel)
+        if (settings?.settings && cachedCarousel.length > 0) {
+          setTotalCarouselDuration(
+            cachedCarousel.length * settings.settings.timeBetweenSlideshows
+          )
+        }
+        console.warn("Using cached carousel due to network error")
+      } else if (!cachedCarousel) {
+        toast.error(
+          error.message ?? "An error occurred while fetching carousels."
+        )
+      }
     }
   }
 
   useEffect(() => {
     fetchMasjidId()
   }, [])
+
+  // Preload cached data immediately when masjidId is available
+  useEffect(() => {
+    if (!displayedMasjidId) {
+      return
+    }
+
+    // Load cached data immediately for offline capability
+    const cachedProfile = getProfileFromStorage(displayedMasjidId)
+    if (cachedProfile && !profile) {
+      setProfile(cachedProfile)
+      document.title = `Paparan ${toSentenceCase(cachedProfile.type)} ${cachedProfile.name} | PTM`
+    }
+
+    const cachedSettings = getSettingsFromStorage(displayedMasjidId)
+    if (cachedSettings && !settings) {
+      setSettings(cachedSettings)
+      setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
+
+      const cachedPrayerTime = getPrayerTimeFromStorage(
+        cachedSettings.city,
+        cachedSettings.countryCode
+      )
+      if (cachedPrayerTime) {
+        setPrayerTime(cachedPrayerTime)
+      }
+    }
+
+    const cachedCarousel = getCarouselFromStorage(displayedMasjidId)
+    if (cachedCarousel && carouselItems.length === 0) {
+      setCarouselItems(cachedCarousel)
+    }
+  }, [displayedMasjidId])
 
   useEffect(() => {
     if (!displayedMasjidId) {
@@ -373,6 +507,14 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
         <NewsBanner news={getNewsTexts()} />
       </div>
+
+      {/* Offline Mode Indicator */}
+      {isOfflineMode && (
+        <div className="absolute z-20 flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-lg top-2 right-2 bg-red-600/90 backdrop-blur-sm">
+          <MdWifiOff className="text-xl" />
+          <span>Mode Luar Talian</span>
+        </div>
+      )}
 
       <div className="absolute z-20 flex flex-col gap-2 bottom-2 left-2">
         <button
