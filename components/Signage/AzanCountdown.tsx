@@ -120,9 +120,6 @@ const AzanCountdown = ({
                   {String(timeLeft.minutes).padStart(2, "0")}
                 </span>
               </div>
-              <p className="mt-4 text-5xl font-bold text-white uppercase tracking-wider">
-                Minit
-              </p>
             </div>
 
             {/* Separator */}
@@ -141,9 +138,6 @@ const AzanCountdown = ({
                   {String(timeLeft.seconds).padStart(2, "0")}
                 </span>
               </div>
-              <p className="mt-4 text-5xl font-bold text-white uppercase tracking-wider">
-                Saat
-              </p>
             </div>
           </div>
         </div>

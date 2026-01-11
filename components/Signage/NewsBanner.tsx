@@ -2,7 +2,7 @@ import Shimmer from "components/Shimmer"
 import Marquee from "react-fast-marquee"
 
 const NewsBanner = ({ news }: { news?: string[] }) => (
-  <div className="absolute bottom-0 flex items-center w-full h-12 overflow-hidden flex-nowrap bg-dark">
+  <div className="absolute z-20 bottom-0 flex items-center w-full h-12 overflow-hidden flex-nowrap bg-dark">
     {news ? (
       <Marquee className="h-12">
         {news.map((item, index) => (
