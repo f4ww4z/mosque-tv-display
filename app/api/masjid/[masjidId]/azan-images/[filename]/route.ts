@@ -1,5 +1,6 @@
 import fs from "fs"
 import { sanitizeFilename } from "lib/azanUtils"
+import { getContentType } from "lib/metadata"
 import { NextRequest, NextResponse } from "next/server"
 import path from "path"
 
@@ -29,14 +30,8 @@ export async function GET(
 
   const fileBuffer = fs.readFileSync(filePath)
 
-  // Determine content type based on file extension
-  const ext = path.extname(sanitizedFilename).toLowerCase()
-  const contentTypeMap: { [key: string]: string } = {
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".png": "image/png",
-  }
-  const contentType = contentTypeMap[ext] || "image/jpeg"
+  // Get content type based on file extension
+  const contentType = getContentType(sanitizedFilename)
 
   return new NextResponse(fileBuffer, {
     headers: {

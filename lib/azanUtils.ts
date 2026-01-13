@@ -83,7 +83,8 @@ export function sanitizeFilename(filename: string): string {
   const lastDotIndex = basename.lastIndexOf(".")
   if (lastDotIndex === -1) {
     // No extension, sanitize entire name
-    return basename.replace(/[^a-zA-Z0-9_-]/g, "_")
+    const sanitized = basename.replace(/[^a-zA-Z0-9_-]/g, "_")
+    return sanitized || "file" // Fallback if name is empty
   }
 
   const name = basename.substring(0, lastDotIndex)
@@ -93,5 +94,8 @@ export function sanitizeFilename(filename: string): string {
   const sanitizedName = name.replace(/[^a-zA-Z0-9_-]/g, "_")
   const sanitizedExt = ext.replace(/[^a-zA-Z0-9.]/g, "")
 
-  return sanitizedName + sanitizedExt
+  // Ensure we have a valid name
+  const finalName = sanitizedName || "file"
+
+  return finalName + sanitizedExt
 }

@@ -27,7 +27,7 @@ import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
 import { AzanImagesResponse } from "types/azan"
-import { PRAYER_NAME_MAP } from "lib/azanUtils"
+import { getPrayerImageFieldName, PRAYER_NAME_MAP } from "lib/azanUtils"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
 import AzanAnnouncement from "./AzanAnnouncement"
@@ -376,19 +376,9 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     const prayerKey = PRAYER_NAME_MAP[prayerNameLower]
     if (!prayerKey) return undefined
 
-    // Map prayer key to field name
-    const fieldMap: { [key: string]: keyof AzanImagesResponse } = {
-      fajr: "azanImageFajr",
-      dhuhr: "azanImageDhuhr",
-      asr: "azanImageAsr",
-      maghrib: "azanImageMaghrib",
-      isha: "azanImageIsha",
-    }
-
-    const imageKey = fieldMap[prayerKey]
-    if (!imageKey) return undefined
-
-    const fileName = azanImages[imageKey]
+    // Get the field name using utility function
+    const fieldName = getPrayerImageFieldName(prayerKey)
+    const fileName = azanImages[fieldName]
     if (!fileName) return undefined
 
     return `/api/masjid/${displayedMasjidId}/azan-images/${fileName}`

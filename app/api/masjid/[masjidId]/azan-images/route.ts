@@ -68,9 +68,11 @@ export async function POST(
       )
     }
 
-    // Sanitize the file extension to prevent path traversal
-    const sanitizedExt = sanitizeFilename(path.extname(file.name))
-    const newFileName = `azan-${prayerName}-${randomFileName()}${sanitizedExt}`
+    // Get file extension and sanitize the full temporary filename
+    const tempFileName = `temp-${randomFileName()}${path.extname(file.name)}`
+    const sanitizedTempName = sanitizeFilename(tempFileName)
+    const ext = path.extname(sanitizedTempName)
+    const newFileName = `azan-${prayerName}-${randomFileName()}${ext}`
 
     // Save file to disk
     const azanImagesDir = path.join(
