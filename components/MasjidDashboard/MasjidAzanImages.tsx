@@ -3,6 +3,7 @@
 import { ZoomAndFade } from "components/Animations"
 import LoadingIndicator from "components/LoadingIndicator"
 import Modal from "components/Modal"
+import { getPrayerImageFieldName } from "lib/azanUtils"
 import { getJWTToken } from "lib/auth"
 import fetchJson from "lib/fetchJson"
 import { formatFileSize } from "lib/string"
@@ -246,8 +247,9 @@ const MasjidAzanImages = ({ id }: { id: string }) => {
       return <p>Prayer not selected.</p>
     }
 
-    const imageFieldKey =
-      `azanImage${selectedPrayer.key.charAt(0).toUpperCase() + selectedPrayer.key.slice(1)}` as keyof AzanImagesResponse
+    const imageFieldKey = getPrayerImageFieldName(
+      selectedPrayer.key
+    ) as keyof AzanImagesResponse
     const imageFileName = azanImages?.[imageFieldKey]
 
     return (
@@ -293,8 +295,9 @@ const MasjidAzanImages = ({ id }: { id: string }) => {
 
   const getImageFileName = (prayerKey: PrayerName): string | null => {
     if (!azanImages) return null
-    const fieldKey =
-      `azanImage${prayerKey.charAt(0).toUpperCase() + prayerKey.slice(1)}` as keyof AzanImagesResponse
+    const fieldKey = getPrayerImageFieldName(
+      prayerKey
+    ) as keyof AzanImagesResponse
     return azanImages[fieldKey] || null
   }
 

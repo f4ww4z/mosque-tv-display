@@ -1,4 +1,5 @@
 import fs from "fs"
+import { sanitizeFilename } from "lib/azanUtils"
 import { NextRequest, NextResponse } from "next/server"
 import path from "path"
 
@@ -8,12 +9,15 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { masjidId: string; filename: string } }
 ) {
+  // Sanitize filename to prevent path traversal attacks
+  const sanitizedFilename = sanitizeFilename(params.filename)
+
   const filePath = path.join(
     process.env.ROOT_FILES_PATH,
     "masjid",
     params.masjidId,
     "azan-images",
-    params.filename
+    sanitizedFilename
   )
 
   if (!fs.existsSync(filePath)) {
@@ -26,7 +30,7 @@ export async function GET(
   const fileBuffer = fs.readFileSync(filePath)
 
   // Determine content type based on file extension
-  const ext = path.extname(params.filename).toLowerCase()
+  const ext = path.extname(sanitizedFilename).toLowerCase()
   const contentTypeMap: { [key: string]: string } = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",

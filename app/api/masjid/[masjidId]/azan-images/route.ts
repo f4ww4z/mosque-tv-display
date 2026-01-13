@@ -1,4 +1,5 @@
 import fs from "fs"
+import { getPrayerImageFieldName, sanitizeFilename } from "lib/azanUtils"
 import prisma from "lib/prisma"
 import { handleRequest } from "lib/requests"
 import { randomFileName } from "lib/string"
@@ -65,7 +66,9 @@ export async function POST(
       )
     }
 
-    const newFileName = `azan-${prayerName}-${randomFileName()}${path.extname(file.name)}`
+    // Sanitize the file extension to prevent path traversal
+    const sanitizedExt = sanitizeFilename(path.extname(file.name))
+    const newFileName = `azan-${prayerName}-${randomFileName()}${sanitizedExt}`
 
     // Save file to disk
     const azanImagesDir = path.join(
@@ -109,13 +112,7 @@ export async function POST(
     }
 
     // Update database with new filename
-    const fieldName =
-      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}` as
-        | "azanImageFajr"
-        | "azanImageDhuhr"
-        | "azanImageAsr"
-        | "azanImageMaghrib"
-        | "azanImageIsha"
+    const fieldName = getPrayerImageFieldName(prayerName)
 
     await prisma.masjidSettings.update({
       where: {
@@ -178,13 +175,7 @@ export async function DELETE(
     }
 
     // Update database to remove filename
-    const fieldName =
-      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}` as
-        | "azanImageFajr"
-        | "azanImageDhuhr"
-        | "azanImageAsr"
-        | "azanImageMaghrib"
-        | "azanImageIsha"
+    const fieldName = getPrayerImageFieldName(prayerName)
 
     await prisma.masjidSettings.update({
       where: {
