@@ -52,6 +52,11 @@ export interface MasjidProfileUpdateRequest {
 export interface MasjidSettingsUpdateRequest {
   language: string
   timeUntilIqamah: number
+  timeUntilIqamahFajr: number
+  timeUntilIqamahDhuhr: number
+  timeUntilIqamahAsr: number
+  timeUntilIqamahMaghrib: number
+  timeUntilIqamahIsha: number
   notifyPrayerTimeSound: string
   timeUntilPrayerEnds: number
   timeBetweenSlideshows: number

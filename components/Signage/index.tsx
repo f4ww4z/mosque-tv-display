@@ -121,7 +121,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   // Get the current prayer that has started (for Iqamah countdown)
   const getCurrentPrayer = () => {
     if (!prayerTime) {
-      return { time: undefined, name: undefined }
+      return { time: undefined, name: undefined, key: undefined }
     }
 
     const ptLabels = {
@@ -145,6 +145,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
         return {
           time: prayerTime[ptLabelEn],
           name: ptLabels.ms[i],
+          key: ptLabelEn,
         }
       }
     }
@@ -153,6 +154,29 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     return {
       time: prayerTime.isha,
       name: "Isyak",
+      key: "isha",
+    }
+  }
+
+  // Get the iqamah time for the current prayer
+  const getIqamahTimeForPrayer = (prayerKey?: string) => {
+    if (!prayerKey || !settings?.settings) {
+      return settings?.settings?.timeUntilIqamah || 10
+    }
+
+    switch (prayerKey) {
+      case "fajr":
+        return settings.settings.timeUntilIqamahFajr
+      case "dhuhr":
+        return settings.settings.timeUntilIqamahDhuhr
+      case "asr":
+        return settings.settings.timeUntilIqamahAsr
+      case "maghrib":
+        return settings.settings.timeUntilIqamahMaghrib
+      case "isha":
+        return settings.settings.timeUntilIqamahIsha
+      default:
+        return settings.settings.timeUntilIqamah
     }
   }
 
@@ -485,7 +509,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
               <IqamahCountdown
                 key={`iqamah-${getCurrentPrayer().time}-${showAzanAnnouncement}`}
                 theme={settings.settings.theme}
-                timeUntilIqamah={settings.settings.timeUntilIqamah}
+                timeUntilIqamah={getIqamahTimeForPrayer(getCurrentPrayer().key)}
                 timeUntilPrayerEnds={settings.settings.timeUntilPrayerEnds}
                 prayerTime={getCurrentPrayer().time}
                 prayerName={getCurrentPrayer().name}

@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "MasjidSettings" ADD COLUMN     "timeUntilIqamahAsr" INTEGER NOT NULL DEFAULT 10,
+ADD COLUMN     "timeUntilIqamahDhuhr" INTEGER NOT NULL DEFAULT 10,
+ADD COLUMN     "timeUntilIqamahFajr" INTEGER NOT NULL DEFAULT 15,
+ADD COLUMN     "timeUntilIqamahIsha" INTEGER NOT NULL DEFAULT 10,
+ADD COLUMN     "timeUntilIqamahMaghrib" INTEGER NOT NULL DEFAULT 10;

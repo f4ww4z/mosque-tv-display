@@ -308,20 +308,121 @@ const MasjidSettings = ({ id }: { id: string }) => {
                   Masa Antara Azan & Iqamah (minit)&nbsp;
                   <Asterisk />
                 </label>
+                <p className="text-sm text-gray-400">
+                  Tetapkan masa iqamah untuk setiap waktu solat
+                </p>
 
-                <input
-                  id="timeUntilIqamah"
-                  type="number"
-                  placeholder="10..."
-                  className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
-                  value={settings?.timeUntilIqamah}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      timeUntilIqamah: e.target.valueAsNumber,
-                    })
-                  }
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="timeUntilIqamahFajr"
+                      className="text-base font-medium"
+                    >
+                      Subuh
+                    </label>
+                    <input
+                      id="timeUntilIqamahFajr"
+                      type="number"
+                      placeholder="15..."
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                      value={settings?.timeUntilIqamahFajr}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          timeUntilIqamahFajr: e.target.valueAsNumber,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="timeUntilIqamahDhuhr"
+                      className="text-base font-medium"
+                    >
+                      Zohor
+                    </label>
+                    <input
+                      id="timeUntilIqamahDhuhr"
+                      type="number"
+                      placeholder="10..."
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                      value={settings?.timeUntilIqamahDhuhr}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          timeUntilIqamahDhuhr: e.target.valueAsNumber,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="timeUntilIqamahAsr"
+                      className="text-base font-medium"
+                    >
+                      Asar
+                    </label>
+                    <input
+                      id="timeUntilIqamahAsr"
+                      type="number"
+                      placeholder="10..."
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                      value={settings?.timeUntilIqamahAsr}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          timeUntilIqamahAsr: e.target.valueAsNumber,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="timeUntilIqamahMaghrib"
+                      className="text-base font-medium"
+                    >
+                      Maghrib
+                    </label>
+                    <input
+                      id="timeUntilIqamahMaghrib"
+                      type="number"
+                      placeholder="10..."
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                      value={settings?.timeUntilIqamahMaghrib}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          timeUntilIqamahMaghrib: e.target.valueAsNumber,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="timeUntilIqamahIsha"
+                      className="text-base font-medium"
+                    >
+                      Isyak
+                    </label>
+                    <input
+                      id="timeUntilIqamahIsha"
+                      type="number"
+                      placeholder="10..."
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                      value={settings?.timeUntilIqamahIsha}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          timeUntilIqamahIsha: e.target.valueAsNumber,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-col w-full gap-1">
