@@ -109,16 +109,21 @@ export async function POST(
     }
 
     // Update database with new filename
-    const updateData: any = {}
-    updateData[
-      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}`
-    ] = newFileName
+    const fieldName =
+      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}` as
+        | "azanImageFajr"
+        | "azanImageDhuhr"
+        | "azanImageAsr"
+        | "azanImageMaghrib"
+        | "azanImageIsha"
 
     await prisma.masjidSettings.update({
       where: {
         masjidId: params.masjidId,
       },
-      data: updateData,
+      data: {
+        [fieldName]: newFileName,
+      },
     })
 
     return NextResponse.json({
@@ -173,16 +178,21 @@ export async function DELETE(
     }
 
     // Update database to remove filename
-    const updateData: any = {}
-    updateData[
-      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}`
-    ] = null
+    const fieldName =
+      `azanImage${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)}` as
+        | "azanImageFajr"
+        | "azanImageDhuhr"
+        | "azanImageAsr"
+        | "azanImageMaghrib"
+        | "azanImageIsha"
 
     await prisma.masjidSettings.update({
       where: {
         masjidId: params.masjidId,
       },
-      data: updateData,
+      data: {
+        [fieldName]: null,
+      },
     })
 
     return NextResponse.json({

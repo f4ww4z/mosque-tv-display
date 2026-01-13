@@ -25,9 +25,18 @@ export async function GET(
 
   const fileBuffer = fs.readFileSync(filePath)
 
+  // Determine content type based on file extension
+  const ext = path.extname(params.filename).toLowerCase()
+  const contentTypeMap: { [key: string]: string } = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+  }
+  const contentType = contentTypeMap[ext] || "image/jpeg"
+
   return new NextResponse(fileBuffer, {
     headers: {
-      "Content-Type": "image/jpeg",
+      "Content-Type": contentType,
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   })
