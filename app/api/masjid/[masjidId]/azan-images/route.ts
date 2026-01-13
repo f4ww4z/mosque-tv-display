@@ -1,5 +1,10 @@
 import fs from "fs"
-import { getPrayerImageFieldName, sanitizeFilename } from "lib/azanUtils"
+import {
+  getAzanImageFilename,
+  getPrayerImageFieldName,
+  sanitizeFilename,
+  VALID_PRAYER_NAMES,
+} from "lib/azanUtils"
 import prisma from "lib/prisma"
 import { handleRequest } from "lib/requests"
 import { randomFileName } from "lib/string"
@@ -47,10 +52,7 @@ export async function POST(
     const prayerName = formData.get("prayerName") as PrayerName
     const file = formData.get("file") as unknown as File
 
-    if (
-      !prayerName ||
-      !["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(prayerName)
-    ) {
+    if (!prayerName || !VALID_PRAYER_NAMES.includes(prayerName)) {
       throw new Error("Nama waktu solat tidak sah.")
     }
 
@@ -95,15 +97,7 @@ export async function POST(
     })
 
     // Delete old image if exists
-    const fieldMap = {
-      fajr: settings.azanImageFajr,
-      dhuhr: settings.azanImageDhuhr,
-      asr: settings.azanImageAsr,
-      maghrib: settings.azanImageMaghrib,
-      isha: settings.azanImageIsha,
-    }
-
-    const oldFileName = fieldMap[prayerName]
+    const oldFileName = getAzanImageFilename(settings, prayerName)
     if (oldFileName) {
       const oldFilePath = path.join(azanImagesDir, oldFileName)
       if (fs.existsSync(oldFilePath)) {
@@ -137,10 +131,7 @@ export async function DELETE(
   return handleRequest(req, async () => {
     const { prayerName }: { prayerName: PrayerName } = await req.json()
 
-    if (
-      !prayerName ||
-      !["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(prayerName)
-    ) {
+    if (!prayerName || !VALID_PRAYER_NAMES.includes(prayerName)) {
       throw new Error("Nama waktu solat tidak sah.")
     }
 
@@ -151,15 +142,7 @@ export async function DELETE(
       },
     })
 
-    const fieldMap = {
-      fajr: settings.azanImageFajr,
-      dhuhr: settings.azanImageDhuhr,
-      asr: settings.azanImageAsr,
-      maghrib: settings.azanImageMaghrib,
-      isha: settings.azanImageIsha,
-    }
-
-    const fileName = fieldMap[prayerName]
+    const fileName = getAzanImageFilename(settings, prayerName)
     if (fileName) {
       const azanImagesDir = path.join(
         process.env.ROOT_FILES_PATH,

@@ -27,6 +27,7 @@ import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
 import { AzanImagesResponse } from "types/azan"
+import { PRAYER_NAME_MAP } from "lib/azanUtils"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
 import AzanAnnouncement from "./AzanAnnouncement"
@@ -371,20 +372,20 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
     const prayerNameLower = prayerName.toLowerCase()
 
-    // Map Malay prayer names to English keys
-    const prayerMap: { [key: string]: keyof AzanImagesResponse } = {
-      subuh: "azanImageFajr",
+    // Map Malay/English prayer names to prayer keys
+    const prayerKey = PRAYER_NAME_MAP[prayerNameLower]
+    if (!prayerKey) return undefined
+
+    // Map prayer key to field name
+    const fieldMap: { [key: string]: keyof AzanImagesResponse } = {
       fajr: "azanImageFajr",
-      zohor: "azanImageDhuhr",
       dhuhr: "azanImageDhuhr",
-      asar: "azanImageAsr",
       asr: "azanImageAsr",
       maghrib: "azanImageMaghrib",
-      isyak: "azanImageIsha",
       isha: "azanImageIsha",
     }
 
-    const imageKey = prayerMap[prayerNameLower]
+    const imageKey = fieldMap[prayerKey]
     if (!imageKey) return undefined
 
     const fileName = azanImages[imageKey]
