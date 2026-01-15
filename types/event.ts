@@ -14,6 +14,7 @@ export interface MasjidAndBriefEventsResponse {
   masjidName: string
   masjidAddress: string
   theme: string
+  logoFilename?: string
   events: EventResponse[]
 }
 

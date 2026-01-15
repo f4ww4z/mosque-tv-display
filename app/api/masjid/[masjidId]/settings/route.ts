@@ -47,6 +47,7 @@ export async function GET(
               newsTexts: true,
               theme: true,
               zoomLevel: true,
+              logoFilename: true,
               worldClocks: {
                 select: {
                   city: true,

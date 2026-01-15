@@ -494,6 +494,8 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
         <Profile
           theme={settings.settings.theme}
           data={profile}
+          logoFilename={settings.settings.logoFilename}
+          masjidId={displayedMasjidId}
         />
 
         <Calendar

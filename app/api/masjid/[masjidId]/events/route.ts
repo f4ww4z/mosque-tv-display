@@ -27,6 +27,7 @@ export async function GET(
           settings: {
             select: {
               theme: true,
+              logoFilename: true,
             },
           },
           events: {
@@ -63,6 +64,7 @@ export async function GET(
         masjidName: data.name,
         masjidAddress: data.address,
         theme: data.settings.theme,
+        logoFilename: data.settings.logoFilename,
         events,
       }
 
