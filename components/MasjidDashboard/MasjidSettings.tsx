@@ -3,10 +3,12 @@
 import { ZoomAndFade } from "components/Animations"
 import Asterisk from "components/Asterisk"
 import LoadingIndicator from "components/LoadingIndicator"
+import { getJWTToken } from "lib/auth"
 import fetchJson from "lib/fetchJson"
 import { toSentenceCase } from "lib/string"
+import Image from "next/image"
 import { FormEvent, useEffect, useState } from "react"
-import { FaPlus, FaTrash } from "react-icons/fa"
+import { FaPlus, FaTrash, FaUpload } from "react-icons/fa"
 import { toast } from "react-toastify"
 import {
   MasjidSettingsResponse,
@@ -22,6 +24,8 @@ const MasjidSettings = ({ id }: { id: string }) => {
   const [loadedSettings, setLoadedSettings] = useState<MasjidSettingsResponse>()
   const [settings, setSettings] = useState<MasjidSettingsUpdateRequest>()
   const [newsTexts, setNewsTexts] = useState<string[]>([])
+  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
@@ -76,6 +80,67 @@ const MasjidSettings = ({ id }: { id: string }) => {
     }
 
     setLoadingSubmit(false)
+  }
+
+  const handleLogoUpload = async () => {
+    if (!logoFile) {
+      toast.error("Sila pilih fail logo terlebih dahulu.")
+      return
+    }
+
+    setUploadingLogo(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", logoFile)
+
+      const token = getJWTToken()
+
+      if (!token) {
+        throw new Error("Sila log masuk semula.")
+      }
+
+      await fetch(`/api/masjid/${id}/logo`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
+
+      toast.success("Logo berjaya dimuat naik.")
+      setLogoFile(null)
+      await fetchData()
+    } catch (error) {
+      toast.error(
+        error.message ?? "Error berlaku semasa memuat naik logo."
+      )
+    }
+
+    setUploadingLogo(false)
+  }
+
+  const handleLogoDelete = async () => {
+    if (!settings?.logoFilename) {
+      return
+    }
+
+    if (!confirm("Adakah anda pasti ingin memadam logo ini?")) {
+      return
+    }
+
+    try {
+      await fetchJson(`/api/masjid/${id}/logo`, {
+        method: "DELETE",
+      })
+
+      toast.success("Logo berjaya dipadam.")
+      await fetchData()
+    } catch (error) {
+      toast.error(
+        error.message ?? "Error berlaku semasa memadam logo."
+      )
+    }
   }
 
   useEffect(() => {
@@ -143,6 +208,69 @@ const MasjidSettings = ({ id }: { id: string }) => {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="flex flex-col w-full gap-1">
+                <label
+                  htmlFor="logo"
+                  className="text-lg font-semibold"
+                >
+                  Logo {toSentenceCase(`${loadedSettings?.type}`)}
+                </label>
+                <p className="text-sm text-gray-400">
+                  Muat naik logo untuk dipaparkan pada paparan digital dan halaman aktiviti
+                </p>
+
+                {settings?.logoFilename ? (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <Image
+                      src={`/api/masjid/${id}/logo/${settings.logoFilename}`}
+                      alt="Logo"
+                      width={200}
+                      height={200}
+                      className="object-contain bg-white rounded-lg p-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleLogoDelete}
+                      className="flex items-center justify-center gap-2 px-4 py-2 text-lg transition bg-error-light hover:bg-error-light/80 rounded-xl w-fit"
+                    >
+                      <FaTrash />
+                      Padam Logo
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <input
+                      type="file"
+                      id="logo"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setLogoFile(e.target.files[0])
+                        }
+                      }}
+                      className="w-full px-4 py-2 text-lg bg-primary-light rounded-xl"
+                    />
+                    {logoFile && (
+                      <button
+                        type="button"
+                        onClick={handleLogoUpload}
+                        disabled={uploadingLogo}
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-lg transition bg-accent-dark hover:bg-accent-dark/80 rounded-xl w-fit disabled:bg-gray"
+                      >
+                        {uploadingLogo ? (
+                          <LoadingIndicator />
+                        ) : (
+                          <>
+                            <FaUpload />
+                            Muat Naik Logo
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col w-full gap-1">

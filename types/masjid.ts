@@ -68,6 +68,7 @@ export interface MasjidSettingsUpdateRequest {
   clockHourFormat?: number
   worldClocks?: MasjidWorldClocksResponse[]
   worldClockBackground?: string
+  logoFilename?: string
 }
 
 export interface MasjidSettingsResponse {

@@ -117,6 +117,7 @@ model MasjidSettings {
   azanImageAsr               String?
   azanImageMaghrib           String?
   azanImageIsha              String?
+  logoFilename               String?
 }
 
 model MasjidWorldClock {

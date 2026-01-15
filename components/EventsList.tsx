@@ -52,12 +52,22 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
   }
 
   return (
-    <div className="flex flex-wrap justify-center w-full gap-2 lg:max-w-5xl">
+    <div className="flex flex-wrap justify-center w-full gap-3 lg:max-w-5xl pb-8">
       <ZoomAndFade
-        className={`drop-shadow-xl flex w-full max-w-4xl items-center gap-4 pl-8 pr-16 py-4 rounded-3xl bg-gradient-to-r from-${data.theme}-light to-${data.theme}-lighter flex-nowrap mb-4`}
+        className={`drop-shadow-xl flex w-full max-w-4xl items-center gap-3 md:gap-4 px-4 md:pl-8 md:pr-16 py-3 md:py-4 rounded-2xl md:rounded-3xl bg-gradient-to-r from-${data.theme}-light to-${data.theme}-lighter flex-nowrap mb-2 md:mb-4`}
       >
-        <FaMosque className="text-white text-8xl w-52" />
-        <div className="flex flex-col justify-start w-full gap-2">
+        {data.logoFilename ? (
+          <Image
+            src={`/api/masjid/${masjidId}/logo/${data.logoFilename}`}
+            alt="Logo"
+            width={208}
+            height={208}
+            className="object-contain w-16 h-16 md:w-32 lg:w-52 md:h-32 lg:h-52 bg-white rounded-lg p-1 md:p-2"
+          />
+        ) : (
+          <FaMosque className="text-white text-4xl md:text-6xl lg:text-8xl w-16 md:w-32 lg:w-52" />
+        )}
+        <div className="flex flex-col justify-start w-full gap-1 md:gap-2">
           {!data ? (
             <>
               <Shimmer h={44} />
@@ -65,13 +75,13 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
             </>
           ) : (
             <>
-              <p className="text-5xl font-bold">
+              <p className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight">
                 <span className={data.theme !== "gold" && `text-[#FFCD6C]`}>
                   {toSentenceCase(data.masjidType)}
                 </span>
                 &nbsp;{data.masjidName}
               </p>
-              <p className="text-lg font-normal leading-tight">
+              <p className="text-sm md:text-base lg:text-lg font-normal leading-tight">
                 {data.masjidAddress}
               </p>
             </>
@@ -82,16 +92,16 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
       {data.events.map((item) => (
         <ZoomAndFade
           key={item.id}
-          className={`relative flex items-center py-4 overflow-hidden text-white transition bg-${data.theme} hover:bg-${data.theme}-light w-[480px] hover:cursor-pointer rounded-2xl`}
+          className={`relative flex items-center py-3 md:py-4 overflow-hidden text-white transition bg-${data.theme} hover:bg-${data.theme}-light w-full md:w-[480px] hover:cursor-pointer rounded-xl md:rounded-2xl`}
         >
-          <div className="flex flex-col gap-2 p-2 mx-2 text-lg">
-            <span className="mb-2 text-2xl font-bold">{item.title}</span>
+          <div className="flex flex-col gap-2 p-2 mx-2 text-base md:text-lg w-full">
+            <span className="mb-1 md:mb-2 text-xl md:text-2xl font-bold">{item.title}</span>
             {item.firstPicture &&
               (["mp4", "mov", "avi"].includes(
                 getExtension(item.firstPicture)
               ) ? (
                 <video
-                  className="w-full h-auto"
+                  className="w-full h-auto rounded-lg"
                   src={`/api/masjid/${masjidId}/events/${item.id}/picture/${item.firstPicture}`}
                   autoPlay
                   loop
@@ -101,28 +111,28 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
                 />
               ) : (
                 <Image
-                  className="w-full h-auto"
+                  className="w-full h-auto rounded-lg"
                   src={`/api/masjid/${masjidId}/events/${item.id}/picture/${item.firstPicture}`}
                   alt={item.firstPicture}
                   width={640}
                   height={480}
                 />
               ))}
-            <p className="mt-2">{item.description}</p>
-            <div className="flex w-full gap-2">
-              <span className="text-2xl">
+            <p className="mt-1 md:mt-2 text-sm md:text-base">{item.description}</p>
+            <div className="flex w-full gap-2 items-center">
+              <span className="text-xl md:text-2xl flex-shrink-0">
                 <MdLocationOn />
               </span>
-              <span>{item.location}</span>
+              <span className="text-sm md:text-base">{item.location}</span>
             </div>
-            <div className="flex w-full gap-2">
-              <span className="text-2xl">
+            <div className="flex w-full gap-2 items-center">
+              <span className="text-xl md:text-2xl flex-shrink-0">
                 <FaCalendarDay />
               </span>
               {new Date(item.startDateTime).toDateString() ===
               new Date(item.endDateTime).toDateString() ? (
                 <>
-                  <span>
+                  <span className="text-sm md:text-base">
                     {moment(item.startDateTime)
                       .locale("ms")
                       .format("dddd, DD MMM YYYY")}
@@ -130,25 +140,25 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
                 </>
               ) : (
                 <>
-                  <span>
+                  <span className="text-sm md:text-base">
                     {moment(item.startDateTime)
                       .locale("ms")
                       .format("DD/MM/YYYY")}
                   </span>
-                  <span>-</span>
-                  <span>
+                  <span className="text-sm md:text-base">-</span>
+                  <span className="text-sm md:text-base">
                     {moment(item.endDateTime).locale("ms").format("DD/MM/YYYY")}
                   </span>
                 </>
               )}
             </div>
-            <div className="flex w-full gap-2">
-              <span className="text-2xl">
+            <div className="flex w-full gap-2 items-center">
+              <span className="text-xl md:text-2xl flex-shrink-0">
                 <GoClockFill />
               </span>
-              <span>{moment(item.startDateTime).format("HH:mm")}</span>
-              <span>-</span>
-              <span>{moment(item.endDateTime).format("HH:mm")}</span>
+              <span className="text-sm md:text-base">{moment(item.startDateTime).format("HH:mm")}</span>
+              <span className="text-sm md:text-base">-</span>
+              <span className="text-sm md:text-base">{moment(item.endDateTime).format("HH:mm")}</span>
             </div>
           </div>
         </ZoomAndFade>
