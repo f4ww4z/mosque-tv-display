@@ -24,9 +24,7 @@ export async function POST(
 
     // Check if file is more than 5 MB
     if (file.size > 5 * 1024 * 1024) {
-      throw new Error(
-        "Saiz fail terlalu besar. Saiz maksimum fail ialah 5 MB."
-      )
+      throw new Error("Saiz fail terlalu besar. Saiz maksimum fail ialah 5 MB.")
     }
 
     const newFileName = `${randomFileName()}${path.extname(file.name)}`

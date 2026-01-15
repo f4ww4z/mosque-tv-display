@@ -95,7 +95,9 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
           className={`relative flex items-center py-3 md:py-4 overflow-hidden text-white transition bg-${data.theme} hover:bg-${data.theme}-light w-full md:w-[480px] hover:cursor-pointer rounded-xl md:rounded-2xl`}
         >
           <div className="flex flex-col gap-2 p-2 mx-2 text-base md:text-lg w-full">
-            <span className="mb-1 md:mb-2 text-xl md:text-2xl font-bold">{item.title}</span>
+            <span className="mb-1 md:mb-2 text-xl md:text-2xl font-bold">
+              {item.title}
+            </span>
             {item.firstPicture &&
               (["mp4", "mov", "avi"].includes(
                 getExtension(item.firstPicture)
@@ -118,7 +120,9 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
                   height={480}
                 />
               ))}
-            <p className="mt-1 md:mt-2 text-sm md:text-base">{item.description}</p>
+            <p className="mt-1 md:mt-2 text-sm md:text-base">
+              {item.description}
+            </p>
             <div className="flex w-full gap-2 items-center">
               <span className="text-xl md:text-2xl flex-shrink-0">
                 <MdLocationOn />
@@ -156,9 +160,13 @@ const EventsList = ({ masjidId }: { masjidId: string }) => {
               <span className="text-xl md:text-2xl flex-shrink-0">
                 <GoClockFill />
               </span>
-              <span className="text-sm md:text-base">{moment(item.startDateTime).format("HH:mm")}</span>
+              <span className="text-sm md:text-base">
+                {moment(item.startDateTime).format("HH:mm")}
+              </span>
               <span className="text-sm md:text-base">-</span>
-              <span className="text-sm md:text-base">{moment(item.endDateTime).format("HH:mm")}</span>
+              <span className="text-sm md:text-base">
+                {moment(item.endDateTime).format("HH:mm")}
+              </span>
             </div>
           </div>
         </ZoomAndFade>

@@ -112,9 +112,7 @@ const MasjidSettings = ({ id }: { id: string }) => {
       setLogoFile(null)
       await fetchData()
     } catch (error) {
-      toast.error(
-        error.message ?? "Error berlaku semasa memuat naik logo."
-      )
+      toast.error(error.message ?? "Error berlaku semasa memuat naik logo.")
     }
 
     setUploadingLogo(false)
@@ -137,9 +135,7 @@ const MasjidSettings = ({ id }: { id: string }) => {
       toast.success("Logo berjaya dipadam.")
       await fetchData()
     } catch (error) {
-      toast.error(
-        error.message ?? "Error berlaku semasa memadam logo."
-      )
+      toast.error(error.message ?? "Error berlaku semasa memadam logo.")
     }
   }
 
@@ -218,7 +214,8 @@ const MasjidSettings = ({ id }: { id: string }) => {
                   Logo {toSentenceCase(`${loadedSettings?.type}`)}
                 </label>
                 <p className="text-sm text-gray-400">
-                  Muat naik logo untuk dipaparkan pada paparan digital dan halaman aktiviti
+                  Muat naik logo untuk dipaparkan pada paparan digital dan
+                  halaman aktiviti
                 </p>
 
                 {settings?.logoFilename ? (
