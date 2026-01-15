@@ -112,6 +112,11 @@ model MasjidSettings {
   clockHourFormat            Int                @default(24)
   worldClocks                MasjidWorldClock[]
   worldClockBackground       String             @default("/clock_background.png")
+  azanImageFajr              String?
+  azanImageDhuhr             String?
+  azanImageAsr               String?
+  azanImageMaghrib           String?
+  azanImageIsha              String?
 }
 
 model MasjidWorldClock {

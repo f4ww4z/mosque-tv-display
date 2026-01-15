@@ -26,6 +26,8 @@ import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
+import { AzanImagesResponse } from "types/azan"
+import { getPrayerImageFieldName, PRAYER_NAME_MAP } from "lib/azanUtils"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
 import AzanAnnouncement from "./AzanAnnouncement"
@@ -51,6 +53,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   const [totalCarouselDuration, setTotalCarouselDuration] = useState<number>(0) // seconds
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false)
   const [zoomLevel, setZoomLevel] = useState<number>(0.85)
+  const [azanImages, setAzanImages] = useState<AzanImagesResponse | null>(null)
 
   const handleZoomIn = async () => {
     const newZoom = Math.min(zoomLevel + 0.05, 1.5)
@@ -350,6 +353,37 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     }
   }
 
+  const fetchAzanImages = async () => {
+    try {
+      const data = await fetchJson<AzanImagesResponse>(
+        `/api/masjid/${displayedMasjidId}/azan-images`
+      )
+
+      setAzanImages(data)
+    } catch (error) {
+      console.error("Failed to fetch azan images:", error)
+      // Silently fail - azan images are optional
+    }
+  }
+
+  // Get the azan image path for a specific prayer
+  const getAzanImagePath = (prayerName: string): string | undefined => {
+    if (!azanImages) return undefined
+
+    const prayerNameLower = prayerName.toLowerCase()
+
+    // Map Malay/English prayer names to prayer keys
+    const prayerKey = PRAYER_NAME_MAP[prayerNameLower]
+    if (!prayerKey) return undefined
+
+    // Get the field name using utility function
+    const fieldName = getPrayerImageFieldName(prayerKey)
+    const fileName = azanImages[fieldName]
+    if (!fileName) return undefined
+
+    return `/api/masjid/${displayedMasjidId}/azan-images/${fileName}`
+  }
+
   useEffect(() => {
     fetchMasjidId()
   }, [])
@@ -410,10 +444,12 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
     fetchProfile()
     fetchSettings()
+    fetchAzanImages()
 
     const interval = setInterval(() => {
       fetchProfile()
       fetchSettings()
+      fetchAzanImages()
     }, 10000)
 
     return () => clearInterval(interval)
@@ -437,6 +473,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
           theme={settings.settings.theme}
           prayerName={azanPrayerName}
           duration={settings.settings.azanAnnouncementDuration || 5}
+          imagePath={getAzanImagePath(azanPrayerName)}
           onComplete={() => {
             setShowAzanAnnouncement(false)
             setAzanPrayerName("")

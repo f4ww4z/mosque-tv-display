@@ -9,6 +9,7 @@ import {
   MdOutlineViewCarousel,
   MdSpaceDashboard,
 } from "react-icons/md"
+import { RiImageAddFill } from "react-icons/ri"
 
 const MasjidAdmiSidebar = ({
   isLoading,
@@ -64,6 +65,15 @@ const MasjidAdmiSidebar = ({
               <MdOutlineViewCarousel />
             </span>
             <span className="text-md">Paparan Slaid</span>
+          </Link>
+          <Link
+            className="flex items-center w-full px-4 py-3 transition flex-nowrap hover:bg-teal-700 hover:cursor-pointer hover:bg-primary-dark"
+            href={`/masjid/${masjidId}/azan-images`}
+          >
+            <span className="mr-2 text-4xl">
+              <RiImageAddFill />
+            </span>
+            <span className="text-md">Imej Azan</span>
           </Link>
           {/* <Link
             className="flex items-center w-full px-4 py-3 transition flex-nowrap hover:bg-teal-700 hover:cursor-pointer hover:bg-primary-dark"

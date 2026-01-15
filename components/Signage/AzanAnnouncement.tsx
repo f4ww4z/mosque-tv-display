@@ -8,11 +8,13 @@ const AzanAnnouncement = ({
   theme,
   prayerName,
   duration,
+  imagePath,
   onComplete,
 }: {
   theme: string
   prayerName: string
   duration: number // in seconds
+  imagePath?: string
   onComplete: () => void
 }) => {
   const [time, setTime] = useState(new Date())
@@ -45,7 +47,7 @@ const AzanAnnouncement = ({
         {moment(time).format("HH:mm")}
       </p>
       <Image
-        src="/mode azan.jpg"
+        src={imagePath || "/mode azan.jpg"}
         alt="Azan Announcement"
         fill
         className="object-cover"
