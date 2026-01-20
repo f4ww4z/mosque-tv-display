@@ -444,13 +444,16 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
 
     fetchProfile()
     fetchSettings()
+    fetchCarousels()
     fetchAzanImages()
 
+    // Fetch latest settings and carousel every minute
     const interval = setInterval(() => {
       fetchProfile()
       fetchSettings()
+      fetchCarousels()
       fetchAzanImages()
-    }, 10000)
+    }, 60000) // 60 seconds = 1 minute
 
     return () => clearInterval(interval)
   }, [displayedMasjidId])
