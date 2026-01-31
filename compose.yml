@@ -1,0 +1,37 @@
+services:
+  db:
+    container_name: "${DB_NAME}"
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - "${DB_PORT}:5432"
+    expose:
+      - "${DB_PORT}"
+    environment:
+      POSTGRES_USER: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "${PORT}:3000"
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+      ROOT_FILES_PATH : /app/storage
+      DATABASE_URL: "postgresql://${DB_NAME}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+      JAKIM_API_URL: ${JAKIM_API_URL}
+      ALADHAN_API_URL: ${ALADHAN_API_URL}
+    depends_on:
+      - db
+    volumes:
+      - ${ROOT_FILES_PATH}:/app/storage
+
+volumes:
+  postgres:
