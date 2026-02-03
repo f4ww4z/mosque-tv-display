@@ -54,18 +54,14 @@ export async function GET(req: NextRequest) {
           },
         })
 
+        // Use new JAKIM API endpoint with period=today
         const url = new URL(process.env.JAKIM_API_URL)
-        url.searchParams.set("r", "esolatApi/takwimsolat")
-        url.searchParams.set("period", "duration")
+        url.searchParams.set("r", "esolatApi/TakwimSolat")
+        url.searchParams.set("period", "today")
         url.searchParams.set("zone", myCity.zone.code)
 
-        const data = new FormData()
-        data.append("datestart", moment(today).format("YYYY-MM-DD"))
-        data.append("dateend", moment(tomorrow).format("YYYY-MM-DD"))
-
         const res = await fetch(url.toString(), {
-          method: "POST",
-          body: data,
+          method: "GET",
         })
 
         if (!res.ok) {
@@ -74,8 +70,7 @@ export async function GET(req: NextRequest) {
 
         const response = (await res.json()) as JAKIMPrayerTimesResponse
 
-        // console.log(response)
-
+        // Parse dates from response
         const [hijriYear, hijriMonth, hijriDay] =
           response.prayerTime[0].hijri.split("-")
 
@@ -83,6 +78,7 @@ export async function GET(req: NextRequest) {
 
         const hijriDateFormatted = `${hijriDay} ${hijriMonthName} ${hijriYear}H`
 
+        // Parse gregorian date from response
         const date = moment(response.prayerTime[0].date, "DD-MMM-YYYY")
         date.locale("ms")
         const dateFormatted = date.format("dddd, Do MMMM yyyy")
@@ -98,7 +94,7 @@ export async function GET(req: NextRequest) {
           asr: response.prayerTime[0].asr.substring(0, 5),
           maghrib: response.prayerTime[0].maghrib.substring(0, 5),
           isha: response.prayerTime[0].isha.substring(0, 5),
-          nextFajr: response.prayerTime[1].fajr.substring(0, 5),
+          nextFajr: response.prayerTime[0].fajr.substring(0, 5), // Use today's Fajr (after midnight, "today" is already the next day)
         }
 
         return NextResponse.json(prayerTime)

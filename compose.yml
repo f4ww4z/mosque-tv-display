@@ -24,7 +24,7 @@ services:
     environment:
       NODE_ENV: production
       JWT_SECRET: ${JWT_SECRET}
-      ROOT_FILES_PATH : /app/storage
+      ROOT_FILES_PATH: /app/storage
       DATABASE_URL: "postgresql://${DB_NAME}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
       JAKIM_API_URL: ${JAKIM_API_URL}
       ALADHAN_API_URL: ${ALADHAN_API_URL}
