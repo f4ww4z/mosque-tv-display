@@ -28,6 +28,7 @@ services:
       DATABASE_URL: "postgresql://${DB_NAME}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
       JAKIM_API_URL: ${JAKIM_API_URL}
       ALADHAN_API_URL: ${ALADHAN_API_URL}
+      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
     depends_on:
       - db
     volumes:
