@@ -24,14 +24,14 @@ const PrayerTimeCard = ({
 }: PrayerTimeCardProps) => {
   return (
     <div
-      className={`${isCurrentPrayer ? "text-accent" : "text-white"} flex flex-col items-center px-2 py-1.5 border-b-3 border-${theme}-lighter bg-${theme}-dark`}
+      className={`${isCurrentPrayer ? "text-accent" : "text-white"} flex flex-col items-center px-1.5 py-0.5 border-b-2 border-${theme}-lighter bg-${theme}-dark`}
     >
-      <p className="text-xl font-medium">{ptLabel}</p>
+      <p className="text-lg font-medium">{ptLabel}</p>
       {loading ? (
-        <Shimmer h={40} />
+        <Shimmer h={28} />
       ) : (
         <p
-          className={`font-sans text-4xl font-bold transition transform ${isCurrentPrayer && shouldFlash && "animate-ping"}`}
+          className={`font-sans text-3xl font-bold transition transform ${isCurrentPrayer && shouldFlash && "animate-ping"}`}
         >
           {time}
         </p>

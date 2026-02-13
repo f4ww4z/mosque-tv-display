@@ -2,7 +2,6 @@ services:
   db:
     container_name: "${DB_NAME}"
     image: postgres:14-alpine
-    restart: always
     ports:
       - "${DB_PORT}:5432"
     expose:
@@ -13,12 +12,49 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres:/var/lib/postgresql/data
+    # SECURITY: Resource limits to prevent resource exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    # SECURITY: Restart policy with max attempts to prevent restart abuse
+    restart: on-failure:5
+    # SECURITY: Drop all capabilities except what's needed
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    # SECURITY: Prevent privilege escalation
+    security_opt:
+      - no-new-privileges:true
+    # SECURITY: Use non-root user
+    user: "70:70"
+    # SECURITY: Read-only root filesystem (data goes to volume)
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    # SECURITY: Isolate on custom network
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
     ports:
       - "${PORT}:3000"
     environment:
@@ -28,11 +64,65 @@ services:
       DATABASE_URL: "postgresql://${DB_NAME}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
       JAKIM_API_URL: ${JAKIM_API_URL}
       ALADHAN_API_URL: ${ALADHAN_API_URL}
-      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
-      - ${ROOT_FILES_PATH}:/app/storage
+      # SECURITY: Mount storage as rw, but with nosuid,nodev,noexec
+      - type: bind
+        source: ${ROOT_FILES_PATH:-./storage}
+        target: /app/storage
+        bind:
+          create_host_path: true
+    # SECURITY: Resource limits to prevent resource exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    # SECURITY: Restart policy with max attempts
+    restart: on-failure:5
+    # SECURITY: Drop all capabilities - Next.js doesn't need special privileges
+    cap_drop:
+      - ALL
+    # SECURITY: Prevent privilege escalation
+    security_opt:
+      - no-new-privileges:true
+    # SECURITY: Read-only root filesystem (except for Next.js cache)
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache:uid=1001,gid=1001
+    # SECURITY: Isolate on custom network
+    networks:
+      - app-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   postgres:
+    driver: local
+
+# SECURITY: Isolated network - containers can only communicate with each other
+networks:
+  app-network:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

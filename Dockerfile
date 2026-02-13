@@ -49,6 +49,24 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 
+# SECURITY: Remove unnecessary packages and clear cache
+RUN apk del --no-cache apk-tools python3 make g++ build-base cairo-dev jpeg-dev pango-dev giflib-dev && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /tmp/* && \
+    rm -rf /root/.npm
+
+# SECURITY: Restrict permissions
+RUN chmod -R 755 /app && \
+    chmod -R 555 /app/.next && \
+    chmod -R 555 /app/prisma && \
+    chmod 555 /app/server.js && \
+    mkdir -p /app/storage && \
+    chown nextjs:nodejs /app/storage && \
+    chmod 755 /app/storage && \
+    # Remove write permissions from unnecessary directories
+    chmod -R a-w /app/public 2>/dev/null || true
+
+# SECURITY: Switch to non-root user
 USER nextjs
 
 EXPOSE 3000
