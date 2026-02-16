@@ -42,6 +42,66 @@ const WorldClocksCard = ({
     return null
   }
 
+  // Calculate dynamic sizes based on number of clocks
+  const numClocks = worldClocks.length
+  let clockSize = 300
+  let textSizeClass = "text-5xl"
+  let marginClass = "mx-6 my-4"
+  let borderWidth = 8
+  let hourHandWidth = 10
+  let minuteHandWidth = 6
+  let secondHandWidth = 2
+
+  if (numClocks <= 2) {
+    clockSize = 300
+    textSizeClass = "text-5xl"
+    marginClass = "mx-8 my-6"
+    borderWidth = 8
+    hourHandWidth = 10
+    minuteHandWidth = 6
+    secondHandWidth = 2
+  } else if (numClocks <= 3) {
+    clockSize = 240
+    textSizeClass = "text-4xl"
+    marginClass = "mx-6 my-4"
+    borderWidth = 7
+    hourHandWidth = 9
+    minuteHandWidth = 5
+    secondHandWidth = 2
+  } else if (numClocks <= 4) {
+    clockSize = 220
+    textSizeClass = "text-3xl"
+    marginClass = "mx-5 my-4"
+    borderWidth = 6
+    hourHandWidth = 8
+    minuteHandWidth = 5
+    secondHandWidth = 2
+  } else if (numClocks <= 6) {
+    clockSize = 180
+    textSizeClass = "text-2xl"
+    marginClass = "mx-4 my-3"
+    borderWidth = 5
+    hourHandWidth = 7
+    minuteHandWidth = 4
+    secondHandWidth = 1
+  } else if (numClocks <= 8) {
+    clockSize = 140
+    textSizeClass = "text-xl"
+    marginClass = "mx-3 my-2"
+    borderWidth = 4
+    hourHandWidth = 6
+    minuteHandWidth = 3
+    secondHandWidth = 1
+  } else {
+    clockSize = 120
+    textSizeClass = "text-lg"
+    marginClass = "mx-2 my-2"
+    borderWidth = 3
+    hourHandWidth = 5
+    minuteHandWidth = 3
+    secondHandWidth = 1
+  }
+
   return (
     <div
       key="world-clock-card"
@@ -53,22 +113,29 @@ const WorldClocksCard = ({
       }}
     >
       <div className="absolute w-full h-full bg-black/10"></div>
-      <div className="w-full flex flex-wrap items-center justify-center h-[76vh]">
+      <div className="w-full flex flex-wrap items-center justify-center h-[76vh] gap-y-2">
         {worldClocks.map((wc) => (
           <div
             key={wc.city}
-            className="mx-6"
+            className={marginClass}
           >
-            <AnalogClock
-              key={wc.city}
-              className={`border-8 border-white rounded-full bg-${theme}-dark/50 drop-shadow-2xl`}
-              value={wc.time}
-              size={300}
-              hourHandWidth={10}
-              minuteHandWidth={6}
-              secondHandWidth={2}
-            />
-            <p className="mt-2 text-5xl font-bold text-center drop-shadow-2xl">
+            <div
+              className="inline-block border-white rounded-full drop-shadow-2xl"
+              style={{ borderWidth: `${borderWidth}px` }}
+            >
+              <AnalogClock
+                key={wc.city}
+                className={`rounded-full bg-${theme}-dark/50`}
+                value={wc.time}
+                size={clockSize}
+                hourHandWidth={hourHandWidth}
+                minuteHandWidth={minuteHandWidth}
+                secondHandWidth={secondHandWidth}
+              />
+            </div>
+            <p
+              className={`mt-2 ${textSizeClass} font-bold text-center drop-shadow-2xl`}
+            >
               {wc.city}
             </p>
           </div>
