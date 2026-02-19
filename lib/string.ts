@@ -127,6 +127,143 @@ export function getHijriMonthName(monthNumber: number): string {
   }
 }
 
+export function getHijriMonthNumber(monthName: string): number {
+  // Normalize the month name (handle variations like Sya'ban/Syaaban)
+  const normalizedName = monthName.toLowerCase().replace(/['\s]/g, "")
+
+  switch (normalizedName) {
+    case "muharram":
+      return 1
+    case "safar":
+      return 2
+    case "rabiulawwal":
+    case "rabialawwal":
+      return 3
+    case "rabiulakhir":
+    case "rabialakhir":
+    case "rabiulthani":
+      return 4
+    case "jamadilawwal":
+    case "jamadalawwal":
+    case "jumaadaalawwal":
+      return 5
+    case "jamadilakhir":
+    case "jamadalakhir":
+    case "jumaadaalakhir":
+    case "jamadilthani":
+      return 6
+    case "rejab":
+    case "rajab":
+      return 7
+    case "syaaban":
+    case "shaban":
+    case "syaban":
+      return 8
+    case "ramadhan":
+    case "ramadan":
+      return 9
+    case "syawal":
+    case "shawwal":
+      return 10
+    case "zulkaedah":
+    case "zulqadah":
+    case "dhulqadah":
+    case "zulqidah":
+      return 11
+    case "zulhijjah":
+    case "dhulhijjah":
+    case "zulhijja":
+      return 12
+    default:
+      return 0
+  }
+}
+
+export function getHijriMonthDays(monthNumber: number): number {
+  // Islamic calendar months alternate between 29 and 30 days
+  // Odd months (1, 3, 5, 7, 9, 11) have 30 days
+  // Even months (2, 4, 6, 8, 10) have 29 days
+  // Month 12 (Dhul Hijjah) has 29 or 30 days depending on the year
+  // For simplicity, we'll use 29 days for month 12 and let it overflow to next year
+  if (monthNumber === 12) {
+    return 29 // Will be 30 in leap years, but we'll handle overflow
+  }
+  return monthNumber % 2 === 1 ? 30 : 29
+}
+
+/**
+ * Parse a Hijri date string and return its components
+ * Expected format: "30 Sya'ban 1447H" or "1 Ramadhan 1447H"
+ */
+export function parseHijriDate(hijriDateString: string): {
+  day: number
+  monthName: string
+  monthNumber: number
+  year: number
+} | null {
+  if (!hijriDateString) {
+    return null
+  }
+
+  // Match pattern: "day monthName yearH"
+  const regex = /(\d+)\s+([a-zA-Z'\s]+)\s+(\d+)H?/
+  const match = hijriDateString.match(regex)
+
+  if (!match) {
+    return null
+  }
+
+  const day = parseInt(match[1], 10)
+  const monthName = match[2].trim()
+  const year = parseInt(match[3], 10)
+  const monthNumber = getHijriMonthNumber(monthName)
+
+  if (monthNumber === 0) {
+    return null
+  }
+
+  return {
+    day,
+    monthName,
+    monthNumber,
+    year,
+  }
+}
+
+/**
+ * Increment a Hijri date by one day
+ * Handles month and year transitions
+ */
+export function incrementHijriDate(hijriDateString: string): string {
+  const parsed = parseHijriDate(hijriDateString)
+
+  if (!parsed) {
+    return hijriDateString // Return original if parsing fails
+  }
+
+  let { day, monthNumber, year } = parsed
+
+  // Increment day
+  day++
+
+  // Check if we need to move to next month
+  const daysInMonth = getHijriMonthDays(monthNumber)
+  if (day > daysInMonth) {
+    day = 1
+    monthNumber++
+
+    // Check if we need to move to next year
+    if (monthNumber > 12) {
+      monthNumber = 1
+      year++
+    }
+  }
+
+  // Format back to string
+  const newMonthName = getHijriMonthName(monthNumber)
+  return `${day} ${newMonthName} ${year}H`
+}
+
 export function randomFileName(): string {
   return Math.random().toString(36).substring(6)
 }

@@ -12,7 +12,7 @@ import {
   saveProfileToStorage,
   saveSettingsToStorage,
 } from "lib/localStorage"
-import { toSentenceCase } from "lib/string"
+import { incrementHijriDate, toSentenceCase } from "lib/string"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import {
@@ -181,6 +181,26 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       default:
         return settings.settings.timeUntilIqamah
     }
+  }
+
+  // Get adjusted Hijri date - increment by 1 day after Maghrib until midnight
+  // In Islamic calendar, the new day begins at Maghrib (sunset)
+  const getAdjustedHijriDate = () => {
+    if (!prayerTime?.hijri || !prayerTime?.maghrib) {
+      return prayerTime?.hijri
+    }
+
+    const now = moment()
+    const maghribTime = moment(prayerTime.maghrib, "HH:mm")
+    const midnight = moment().endOf("day")
+
+    // Check if current time is after Maghrib and before midnight
+    if (now.isAfter(maghribTime) && now.isBefore(midnight)) {
+      // Increment the Hijri date by 1 day
+      return incrementHijriDate(prayerTime.hijri)
+    }
+
+    return prayerTime.hijri
   }
 
   const fetchMasjidId = async () => {
@@ -504,7 +524,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
         <Calendar
           theme={settings.settings.theme}
           gregorian={prayerTime?.date}
-          hijri={prayerTime?.hijri}
+          hijri={getAdjustedHijriDate()}
         />
 
         <div className="flex w-full flex-nowrap">
