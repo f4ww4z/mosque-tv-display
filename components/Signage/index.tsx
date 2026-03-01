@@ -28,6 +28,7 @@ import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
 import { PrayerTimeResponse } from "types/prayer"
 import { AzanImagesResponse } from "types/azan"
 import { getPrayerImageFieldName, PRAYER_NAME_MAP } from "lib/azanUtils"
+import { preCacheUrls, registerServiceWorker } from "lib/mediaCache"
 import DoNotDisturbScreen from "../DoNotDisturbScreen"
 import MyClock from "../MyClock"
 import AzanAnnouncement from "./AzanAnnouncement"
@@ -292,6 +293,18 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       setPrayerTime(prayerTime)
       savePrayerTimeToStorage(prayerTime, settings.city, settings.countryCode)
       setIsOfflineMode(false) // Successfully fetched, not offline
+
+      // Pre-cache the configured notification sound and logo for offline use
+      const urlsToCache: string[] = []
+      if (settings.settings?.notifyPrayerTimeSound) {
+        urlsToCache.push(settings.settings.notifyPrayerTimeSound)
+      }
+      if (settings.settings?.logoFilename) {
+        urlsToCache.push(
+          `/api/masjid/${displayedMasjidId}/logo/${settings.settings.logoFilename}`
+        )
+      }
+      preCacheUrls(urlsToCache)
     } catch (error) {
       // If API fails and we have cached data, use it silently
       const cachedSettings = getSettingsFromStorage(displayedMasjidId)
@@ -349,6 +362,13 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       setCarouselItems(data)
       saveCarouselToStorage(data, displayedMasjidId)
 
+      // Pre-cache all carousel media for offline use
+      // Images are fetched eagerly so the entire slideshow works offline
+      const carouselUrls = data.map(
+        (item) => `/api/masjid/${displayedMasjidId}/carousel/${item.filename}`
+      )
+      preCacheUrls(carouselUrls)
+
       if (settings?.settings && data.length > 0) {
         setTotalCarouselDuration(
           data.length * settings.settings.timeBetweenSlideshows
@@ -380,6 +400,21 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       )
 
       setAzanImages(data)
+
+      // Pre-cache all custom azan images for offline use
+      const azanImageUrls = [
+        data.azanImageFajr,
+        data.azanImageDhuhr,
+        data.azanImageAsr,
+        data.azanImageMaghrib,
+        data.azanImageIsha,
+      ]
+        .filter(Boolean)
+        .map(
+          (filename) =>
+            `/api/masjid/${displayedMasjidId}/azan-images/${filename}`
+        )
+      preCacheUrls(azanImageUrls)
     } catch (error) {
       console.error("Failed to fetch azan images:", error)
       // Silently fail - azan images are optional
@@ -405,6 +440,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   }
 
   useEffect(() => {
+    registerServiceWorker()
     fetchMasjidId()
   }, [])
 

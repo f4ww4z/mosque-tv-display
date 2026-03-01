@@ -27,6 +27,7 @@ const Profile = ({
           alt="Logo"
           width={96}
           height={96}
+          unoptimized
           className="object-contain w-24 h-24 bg-white rounded-lg p-1"
         />
       ) : (

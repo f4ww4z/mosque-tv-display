@@ -25,6 +25,7 @@ const DoNotDisturbScreen = ({ onClick }: { onClick?: () => void }) => {
         alt="Do Not Disturb"
         fill
         className="object-cover"
+        unoptimized
       />
     </div>
   )

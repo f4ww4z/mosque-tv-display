@@ -40,6 +40,7 @@ const Card = ({
           alt={filename}
           width={1920}
           height={1080}
+          unoptimized
         />
       )}
     </>

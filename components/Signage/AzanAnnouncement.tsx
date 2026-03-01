@@ -52,6 +52,7 @@ const AzanAnnouncement = ({
         fill
         className="object-cover"
         priority
+        unoptimized
       />
     </div>
   )
