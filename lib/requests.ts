@@ -4,6 +4,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { SessionUser } from "types/user"
 import { verifyAndDecodeJWTToken } from "./auth"
 
+export class HttpError extends Error {
+  statusCode: number
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.name = "HttpError"
+    this.statusCode = statusCode
+  }
+}
+
 export async function handleRequest(
   req: NextRequest,
   callback: ({
@@ -58,20 +67,14 @@ export async function handleRequest(
     return await callback({ sessionUser })
   } catch (error) {
     console.log(error)
+    const statusCode = error instanceof HttpError ? error.statusCode : 500
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Error yang tidak diketahui berlaku"
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Error yang tidak diketahui berlaku",
-      },
-      {
-        status: 500,
-        statusText:
-          error instanceof Error
-            ? error.message
-            : "Error yang tidak diketahui berlaku",
-      }
+      { error: message },
+      { status: statusCode, statusText: message }
     )
   }
 }

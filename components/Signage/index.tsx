@@ -4,15 +4,16 @@ import LoadingIndicator from "components/LoadingIndicator"
 import fetchJson from "lib/fetchJson"
 import {
   getCarouselFromStorage,
-  getPrayerTimeFromStorage,
   getProfileFromStorage,
   getSettingsFromStorage,
+  getYearlyDataFromStorage,
   saveCarouselToStorage,
-  savePrayerTimeToStorage,
   saveProfileToStorage,
   saveSettingsToStorage,
+  saveYearlyDataToStorage,
 } from "lib/localStorage"
-import { incrementHijriDate, toSentenceCase } from "lib/string"
+import { getPrayerTimeFromYearlyData } from "lib/prayerUtils"
+import { toSentenceCase } from "lib/string"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import {
@@ -25,7 +26,7 @@ import {
 import { toast } from "react-toastify"
 import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
-import { PrayerTimeResponse } from "types/prayer"
+import { JAKIMPrayerTimesResponse, PrayerTimeResponse } from "types/prayer"
 import { AzanImagesResponse } from "types/azan"
 import { getPrayerImageFieldName, PRAYER_NAME_MAP } from "lib/azanUtils"
 import { preCacheUrls, registerServiceWorker } from "lib/mediaCache"
@@ -53,6 +54,7 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([])
   const [totalCarouselDuration, setTotalCarouselDuration] = useState<number>(0) // seconds
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false)
+  const [jakimDown, setJakimDown] = useState<boolean>(false)
   const [zoomLevel, setZoomLevel] = useState<number>(0.85)
   const [azanImages, setAzanImages] = useState<AzanImagesResponse | null>(null)
 
@@ -184,8 +186,8 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     }
   }
 
-  // Get adjusted Hijri date - increment by 1 day after Maghrib until midnight
-  // In Islamic calendar, the new day begins at Maghrib (sunset)
+  // Get adjusted Hijri date — in Islamic calendar the new day begins at Maghrib (sunset)
+  // After Maghrib: show tomorrow's Hijri date from the yearly data (accurate, no arithmetic)
   const getAdjustedHijriDate = () => {
     if (!prayerTime?.hijri || !prayerTime?.maghrib) {
       return prayerTime?.hijri
@@ -195,10 +197,8 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     const maghribTime = moment(prayerTime.maghrib, "HH:mm")
     const midnight = moment().endOf("day")
 
-    // Check if current time is after Maghrib and before midnight
     if (now.isAfter(maghribTime) && now.isBefore(midnight)) {
-      // Increment the Hijri date by 1 day
-      return incrementHijriDate(prayerTime.hijri)
+      return prayerTime.hijriTomorrow
     }
 
     return prayerTime.hijri
@@ -258,80 +258,94 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     }
   }
 
+  const fetchPrayerTime = async (city: string, countryCode: string) => {
+    const year = new Date().getFullYear()
+
+    // Use localStorage yearly data for instant, offline-safe display
+    const cachedYearly = getYearlyDataFromStorage(city, countryCode, year)
+    if (cachedYearly) {
+      const computed = getPrayerTimeFromYearlyData(cachedYearly, new Date())
+      if (computed) {
+        setPrayerTime(computed)
+        setJakimDown(false)
+      }
+    }
+
+    try {
+      const freshYearly = await fetchJson<JAKIMPrayerTimesResponse>(
+        `/api/prayer/yearly?city=${encodeURIComponent(city)}&countryCode=${countryCode}`
+      )
+      saveYearlyDataToStorage(freshYearly, city, countryCode, year)
+      const computed = getPrayerTimeFromYearlyData(freshYearly, new Date())
+      if (computed) {
+        setPrayerTime(computed)
+        setJakimDown(false)
+      }
+    } catch {
+      if (!cachedYearly) {
+        setJakimDown(true)
+      } else {
+        setIsOfflineMode(true)
+        console.warn("Using cached yearly prayer data due to network error")
+      }
+    }
+  }
+
   const fetchSettings = async () => {
+    let resolvedSettings: MasjidSettingsResponse | null = null
+
     try {
       // Try to load from cache first
       const cachedSettings = getSettingsFromStorage(displayedMasjidId)
       if (cachedSettings) {
         setSettings(cachedSettings)
         setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
-
-        // Also try to load cached prayer time
-        const cachedPrayerTime = getPrayerTimeFromStorage(
-          cachedSettings.city,
-          cachedSettings.countryCode
-        )
-        if (cachedPrayerTime) {
-          setPrayerTime(cachedPrayerTime)
-        }
+        resolvedSettings = cachedSettings
       }
 
       // Fetch fresh settings
-      const settings = await fetchJson<MasjidSettingsResponse>(
+      const freshSettings = await fetchJson<MasjidSettingsResponse>(
         `/api/masjid/${displayedMasjidId}/settings`
       )
 
-      setSettings(settings)
-      saveSettingsToStorage(settings, displayedMasjidId)
-      setZoomLevel(settings.settings?.zoomLevel ?? 0.85)
-
-      // Fetch fresh prayer time
-      const prayerTime = await fetchJson<PrayerTimeResponse>(
-        `/api/prayer?city=${settings.city}&countryCode=${settings.countryCode}`
-      )
-
-      setPrayerTime(prayerTime)
-      savePrayerTimeToStorage(prayerTime, settings.city, settings.countryCode)
-      setIsOfflineMode(false) // Successfully fetched, not offline
+      setSettings(freshSettings)
+      saveSettingsToStorage(freshSettings, displayedMasjidId)
+      setZoomLevel(freshSettings.settings?.zoomLevel ?? 0.85)
+      setIsOfflineMode(false)
+      resolvedSettings = freshSettings
 
       // Pre-cache the configured notification sound and logo for offline use
       const urlsToCache: string[] = []
-      if (settings.settings?.notifyPrayerTimeSound) {
-        urlsToCache.push(settings.settings.notifyPrayerTimeSound)
+      if (freshSettings.settings?.notifyPrayerTimeSound) {
+        urlsToCache.push(freshSettings.settings.notifyPrayerTimeSound)
       }
-      if (settings.settings?.logoFilename) {
+      if (freshSettings.settings?.logoFilename) {
         urlsToCache.push(
-          `/api/masjid/${displayedMasjidId}/logo/${settings.settings.logoFilename}`
+          `/api/masjid/${displayedMasjidId}/logo/${freshSettings.settings.logoFilename}`
         )
       }
       preCacheUrls(urlsToCache)
     } catch (error) {
-      // If API fails and we have cached data, use it silently
+      // If settings API fails, fall back to cached settings
       const cachedSettings = getSettingsFromStorage(displayedMasjidId)
       if (cachedSettings && !settings) {
         setSettings(cachedSettings)
         setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
-        setIsOfflineMode(true) // Using cache, offline mode
-
-        // Try to load cached prayer time if we don't have it yet
-        if (!prayerTime) {
-          const cachedPrayerTime = getPrayerTimeFromStorage(
-            cachedSettings.city,
-            cachedSettings.countryCode
-          )
-          if (cachedPrayerTime) {
-            setPrayerTime(cachedPrayerTime)
-          }
-        }
-
-        console.warn(
-          "Using cached settings and prayer time due to network error"
-        )
+        setIsOfflineMode(true)
+        resolvedSettings = cachedSettings
+        console.warn("Using cached settings due to network error")
       } else if (!cachedSettings) {
         toast.error(
           error.message ?? "An error occurred while fetching settings."
         )
+      } else {
+        resolvedSettings = cachedSettings
       }
+    }
+
+    // Fetch prayer time separately so JAKIM errors are handled independently
+    if (resolvedSettings) {
+      await fetchPrayerTime(resolvedSettings.city, resolvedSettings.countryCode)
     }
   }
 
@@ -462,12 +476,16 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
       setSettings(cachedSettings)
       setZoomLevel(cachedSettings.settings?.zoomLevel ?? 0.85)
 
-      const cachedPrayerTime = getPrayerTimeFromStorage(
+      // Prefer yearly data for accurate, offline-safe prayer times
+      const year = new Date().getFullYear()
+      const cachedYearly = getYearlyDataFromStorage(
         cachedSettings.city,
-        cachedSettings.countryCode
+        cachedSettings.countryCode,
+        year
       )
-      if (cachedPrayerTime) {
-        setPrayerTime(cachedPrayerTime)
+      if (cachedYearly) {
+        const computed = getPrayerTimeFromYearlyData(cachedYearly, new Date())
+        if (computed) setPrayerTime(computed)
       }
     }
 
@@ -517,7 +535,21 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
   if (!displayedMasjidId || !settings?.settings) {
     return (
       <div className="flex flex-col justify-center w-full h-screen bg-primary-darker">
-        <LoadingIndicator />
+        {jakimDown && (
+          <div className="flex flex-col items-center justify-center w-full h-full p-8 text-white">
+            <div className="text-9xl mb-8">⚠️</div>
+            <h1 className="text-6xl font-bold mb-6 text-center text-yellow-300">
+              JAKIM Tidak Dapat Dicapai
+            </h1>
+            <p className="text-3xl text-center mb-4 text-red-200">
+              Tiada data waktu solat untuk tahun ini.
+            </p>
+            <p className="text-2xl text-center text-red-300">
+              Sila semak sambungan internet atau hubungi pentadbir.
+            </p>
+          </div>
+        )}
+        {!jakimDown && <LoadingIndicator />}
       </div>
     )
   }
@@ -526,6 +558,22 @@ const Signage = ({ masjidId }: { masjidId?: string }) => {
     <div
       className={`relative flex flex-col justify-start w-full h-screen bg-${settings.settings.theme}-darker overflow-hidden`}
     >
+      {/* JAKIM down overlay — shown when prayer data is unavailable and API is unreachable */}
+      {jakimDown && !prayerTime && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-red-900/95 text-white p-8">
+          <div className="text-9xl mb-8">⚠️</div>
+          <h1 className="text-6xl font-bold mb-6 text-center text-yellow-300">
+            JAKIM Tidak Dapat Dicapai
+          </h1>
+          <p className="text-3xl text-center mb-4 text-red-200">
+            Tiada data waktu solat untuk tahun ini.
+          </p>
+          <p className="text-2xl text-center text-red-300">
+            Sila semak sambungan internet atau hubungi pentadbir.
+          </p>
+        </div>
+      )}
+
       {/* Show Azan Announcement outside zoom container to cover entire screen */}
       {showAzanAnnouncement && azanPrayerName && prayerTime && (
         <AzanAnnouncement

@@ -5,7 +5,7 @@
 
 import { CarouselItem } from "types/carousel"
 import { MasjidProfileResponse, MasjidSettingsResponse } from "types/masjid"
-import { PrayerTimeResponse } from "types/prayer"
+import { JAKIMPrayerTimesResponse } from "types/prayer"
 
 const STORAGE_KEYS = {
   PRAYER_TIME: "ptm_prayer_time",
@@ -13,13 +13,7 @@ const STORAGE_KEYS = {
   PROFILE: "ptm_profile",
   CAROUSEL: "ptm_carousel",
   LAST_FETCH_TIME: "ptm_last_fetch_time",
-}
-
-interface CachedPrayerTime {
-  data: PrayerTimeResponse
-  timestamp: number
-  city: string
-  countryCode: string
+  YEARLY_DATA: "ptm_yearly_data",
 }
 
 interface CachedSettings {
@@ -38,59 +32,6 @@ interface CachedCarousel {
   data: CarouselItem[]
   timestamp: number
   masjidId: string
-}
-
-/**
- * Save prayer time to local storage
- */
-export const savePrayerTimeToStorage = (
-  prayerTime: PrayerTimeResponse,
-  city: string,
-  countryCode: string
-): void => {
-  try {
-    const cached: CachedPrayerTime = {
-      data: prayerTime,
-      timestamp: Date.now(),
-      city,
-      countryCode,
-    }
-    localStorage.setItem(STORAGE_KEYS.PRAYER_TIME, JSON.stringify(cached))
-  } catch (error) {
-    console.error("Failed to save prayer time to storage:", error)
-  }
-}
-
-/**
- * Get prayer time from local storage
- * Returns null if not found or expired (older than 24 hours)
- */
-export const getPrayerTimeFromStorage = (
-  city: string,
-  countryCode: string
-): PrayerTimeResponse | null => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEYS.PRAYER_TIME)
-    if (!stored) return null
-
-    const cached: CachedPrayerTime = JSON.parse(stored)
-
-    // Check if the cached data is for the same city/country
-    if (cached.city !== city || cached.countryCode !== countryCode) {
-      return null
-    }
-
-    // Check if data is less than 24 hours old
-    const twentyFourHours = 24 * 60 * 60 * 1000
-    if (Date.now() - cached.timestamp > twentyFourHours) {
-      return null
-    }
-
-    return cached.data
-  } catch (error) {
-    console.error("Failed to get prayer time from storage:", error)
-    return null
-  }
 }
 
 /**
@@ -177,6 +118,62 @@ export const getProfileFromStorage = (
     return cached.data
   } catch (error) {
     console.error("Failed to get profile from storage:", error)
+    return null
+  }
+}
+
+interface CachedYearlyData {
+  data: JAKIMPrayerTimesResponse
+  year: number
+  city: string
+  countryCode: string
+}
+
+/**
+ * Save the full yearly JAKIM prayer timetable to localStorage.
+ * The key includes city + countryCode + year so data from different zones is stored separately.
+ */
+export const saveYearlyDataToStorage = (
+  data: JAKIMPrayerTimesResponse,
+  city: string,
+  countryCode: string,
+  year: number
+): void => {
+  try {
+    const cached: CachedYearlyData = { data, year, city, countryCode }
+    const key = `${STORAGE_KEYS.YEARLY_DATA}_${countryCode}_${city}_${year}`
+    localStorage.setItem(key, JSON.stringify(cached))
+  } catch (error) {
+    console.error("Failed to save yearly prayer data to storage:", error)
+  }
+}
+
+/**
+ * Get the full yearly JAKIM prayer timetable from localStorage.
+ * Returns null if not found or if the year / city / countryCode don't match.
+ */
+export const getYearlyDataFromStorage = (
+  city: string,
+  countryCode: string,
+  year: number
+): JAKIMPrayerTimesResponse | null => {
+  try {
+    const key = `${STORAGE_KEYS.YEARLY_DATA}_${countryCode}_${city}_${year}`
+    const stored = localStorage.getItem(key)
+    if (!stored) return null
+
+    const cached: CachedYearlyData = JSON.parse(stored)
+    if (
+      cached.year !== year ||
+      cached.city !== city ||
+      cached.countryCode !== countryCode
+    ) {
+      return null
+    }
+
+    return cached.data
+  } catch (error) {
+    console.error("Failed to get yearly prayer data from storage:", error)
     return null
   }
 }
